@@ -1,0 +1,8 @@
+.DS_Store
+config/local.js
+npm-debug.log
+.cache/
+dist/
+node_modules/
+.parcel-cache/
+logs
