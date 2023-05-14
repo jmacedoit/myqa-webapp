@@ -1,0 +1,72 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "seegno",
+    "plugin:@typescript-eslint/eslint-recommended"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "eslint-plugin-sort-imports-es6-autofix",
+    "@typescript-eslint"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error"
+    ],
+    "capitalized-comments": "off",
+    "sort-keys": "off",
+    "sort-imports-es6/sort-imports-es6": "off",
+    "sort-imports-es6-autofix/sort-imports-es6": [
+      "error",
+      {
+        "ignoreCase": false,
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": [
+          "none",
+          "all",
+          "multiple",
+          "single"
+        ]
+      }
+    ],
+    "operator-linebreak": "off",
+    "no-else-return": "off",
+    "no-confusing-arrow": "off",
+    "no-underscore-dangle": "off",
+    "id-length": "off",
+    "id-match": [
+      2,
+      "^_$|^_?[a-zA-Z][a-zA-Z0-9]*$|^[A-Z][_A-Z0-9]+[A-Z0-9]$",
+      {
+        "onlyDeclarations": true,
+        "properties": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      2,
+      {
+        "args": "none"
+      }
+    ],
+    "max-params": "off",
+    "react/jsx-curly-brace-presence": "off"
+  }
+}
