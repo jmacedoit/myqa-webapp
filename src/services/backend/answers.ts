@@ -12,12 +12,13 @@ import { endpoints } from 'src/services/backend/endpoints';
  * Answer related methods.
  */
 
-export async function requestAnswer(question: string, knowledgeBaseId: string) {
+export async function requestAnswer(question: string, knowledgeBaseId: string, questionReference: string) {
   return await easyFetch<Answer>(backendUri(endpoints.answerRequest), {
     method: 'POST',
     body: JSON.stringify({
       question,
-      knowledgeBaseId
+      knowledgeBaseId,
+      questionReference
     })
   }) as Answer;
 }
