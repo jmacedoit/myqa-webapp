@@ -20,4 +20,6 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+**/.parcel-cache
+**/.parcelrc
 README.md
