@@ -8,6 +8,7 @@ import { FromSchema } from 'json-schema-to-ts';
 import { GlobalStyle } from 'src/ui/styles/global';
 import { Helmet } from 'react-helmet';
 import { IconButton, List, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer } from '@mui/material';
+import { JSONSchemaType } from 'ajv';
 import { MenuRounded } from '@mui/icons-material';
 import { Normalize } from 'styled-normalize';
 import { Organization } from 'src/types/organizations';
@@ -19,6 +20,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { matchPath } from 'react-router';
 import { routes } from 'src/ui/routes';
+import { selectActiveOrganizationId, setActiveOrganizationId } from 'src/state/slices/ui';
 import { selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { selectOrganizations } from 'src/state/slices/data';
 import { store } from 'src/state/store';
@@ -27,6 +29,7 @@ import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { useTranslation } from 'react-i18next';
 import AnswerScreen from './screens/answer';
+import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import KnowledgeBaseScreen from './screens/knowledge-base';
 import KnowledgeBasesListingScreen from './screens/knowledge-bases-listing';
 import ProtectedRoute from './protected-route';
@@ -37,10 +40,8 @@ import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 import breakpoints from 'src/ui/styles/breakpoints';
 import colors from 'src/ui/styles/colors';
 import styled from 'styled-components';
-import { JSONSchemaType } from 'ajv';
-import JSONSchemaBridge from 'uniforms-bridge-json-schema';
+// eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
 import { AutoField, AutoForm } from 'uniforms-mui';
-import { selectActiveOrganizationId, setActiveOrganizationId } from 'src/state/slices/ui';
 
 /*
  * Setup tanstack react query client.
@@ -270,6 +271,12 @@ export function AppCore() {
               element={<SignIn />}
               key={routes.signIn}
               path={routes.signIn}
+            />
+
+            <Route
+              element={<SignIn />}
+              key={routes.home}
+              path={routes.home}
             />
 
             <Route element={<ProtectedRoute />}>
