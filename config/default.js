@@ -6,7 +6,8 @@
 module.exports = {
   serviceName: 'myqa-webapp',
   backend: {
-    baseUri: 'http://localhost:7100'
+    baseUri: 'http://localhost:7100',
+    restApiPrefix: '/api'
   },
   fetch: {
     crossOriginCredentials: false
