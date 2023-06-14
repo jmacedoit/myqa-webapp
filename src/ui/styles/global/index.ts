@@ -5,14 +5,13 @@
 
 import { createGlobalStyle } from 'styled-components';
 import { staticUri } from 'src/utils/environment';
-import React from 'react';
 import colors from 'src/ui/styles/colors';
 
 /*
  * Global style.
  */
 
-export const GlobalStyle = React.memo(createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'Telegraf';
     src: url(${staticUri(`/assets/fonts/Telegraf-UltraLight.otf`)});
@@ -110,4 +109,4 @@ export const GlobalStyle = React.memo(createGlobalStyle`
   *::after {
     box-sizing: inherit;
   }
-`);
+`;

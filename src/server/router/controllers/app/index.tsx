@@ -23,7 +23,6 @@ export function getPage(ctx: KoaContext, next: Next) {
   const sheet = new ServerStyleSheet();
 
   try {
-    const context: { url?: string } = {};
     const renderedApp = ReactDOMServer.renderToString(sheet.collectStyles(
       <StaticRouter
         basename={config.get('routing.appBasename')}
@@ -36,12 +35,7 @@ export function getPage(ctx: KoaContext, next: Next) {
     const styleTags = sheet.getStyleTags();
     const helmetData = Helmet.renderStatic();
 
-    if (context.url) {
-      ctx.status = 301;
-      ctx.redirect(context.url);
-    } else {
-      ctx.body = generateHtml(renderedApp, helmetData, styleTags);
-    }
+    ctx.body = generateHtml(renderedApp, helmetData, styleTags);
   } catch (error) {
     logger.error(error.stack);
   } finally {

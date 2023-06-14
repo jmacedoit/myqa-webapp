@@ -7,7 +7,8 @@ function validateAndTypeConfig(rawConfig: any) {
   return {
     serviceName: rawConfig.serviceName as string,
     backend: {
-      baseUri: rawConfig.backend.baseUri as string
+      baseUri: rawConfig.backend.baseUri as string,
+      restApiPrefix: rawConfig.backend.restApiPrefix as string
     },
     fetch: {
       crossOriginCredentials: rawConfig.fetch.crossOriginCredentials === 'true' || rawConfig.fetch.crossOriginCredentials === true

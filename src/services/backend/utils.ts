@@ -11,5 +11,5 @@ import config from 'src/config';
  */
 
 export function backendUri(endpoint: string): string {
-  return urlJoin(config.backend.baseUri, endpoint);
+  return urlJoin(config.backend.baseUri, config.backend.restApiPrefix, endpoint);
 }
