@@ -14,7 +14,6 @@
     "dev-server": "DEVELOPMENT_JUST_SERVER=true babel-watch -e ['.js','.jsx','.ts','.tsx','.json'] src/server/index.ts",
     "build-serve": "parcel build --no-optimize && npm run serve",
     "build": "parcel build",
-    "preinstall": "npx npm-force-resolutions",
     "prepare": "husky install",
     "pre-commit": "npm run lint-staged && npm run check-types"
   },
@@ -96,7 +95,6 @@
     "husky": "^8.0.3",
     "lint-staged": "^10.2.0",
     "nodemon": "^2.0.14",
-    "npm-force-resolutions": "0.0.10",
     "os-browserify": "^0.3.0",
     "parcel": "^2.8.3",
     "parcel-reporter-static-files-copy": "^1.5.0",
@@ -107,8 +105,10 @@
     "util": "^0.12.5"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.0.1",
-    "@mui/material": "^5.0.1",
+    "@mui/material": "^5.13.5",
     "@parcel/babel-preset-env": "^2.8.3",
     "@reduxjs/toolkit": "^1.9.5",
     "ajv": "^8.12.0",
