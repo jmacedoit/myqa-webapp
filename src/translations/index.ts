@@ -18,7 +18,7 @@ const translations = {
       },
       screens: {
         knowledgeBases: {
-          title: 'Knowledge bases',
+          title: 'Knowledge Bases',
           resourcesCountSufix: 'resources',
           noResources: 'No resources',
           editKnowledgeBase: 'Edit knowledge base',

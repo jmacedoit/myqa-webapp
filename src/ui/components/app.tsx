@@ -88,7 +88,7 @@ const materialTheme = createTheme({
     }
   },
   typography: {
-    fontFamily: '"ObjectSans", sans-serif'
+    fontFamily: '"Moderat", sans-serif'
   }
 });
 
