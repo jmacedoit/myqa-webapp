@@ -38,7 +38,7 @@ import SignIn from './screens/sign-in';
 import Styleguide from './screens/styleguide';
 import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 import breakpoints from 'src/ui/styles/breakpoints';
-import colors from 'src/ui/styles/colors';
+import colors, { palette } from 'src/ui/styles/colors';
 import styled from 'styled-components';
 // eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
 import { AutoField, AutoForm } from 'uniforms-mui';
@@ -65,6 +65,7 @@ const queryClient = new QueryClient({
 
 setConfiguration({
   breakpoints: [breakpoints.sm, breakpoints.md, breakpoints.lg, breakpoints.xl, breakpoints.xxl],
+  containerWidths: [540, 740, 960, 1312, 1540, 1810],
   gutterWidth: 32
 });
 
@@ -89,6 +90,31 @@ const materialTheme = createTheme({
   },
   typography: {
     fontFamily: '"Moderat", sans-serif'
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& label': {
+            color: palette.extraDarkGreen
+          },
+          '& input': {
+            color: palette.extraDarkGreen
+          },
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: palette.darkGreen
+            },
+            '&:hover fieldset': {
+              borderColor: palette.extraDarkGreen
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: palette.extraDarkGreen
+            }
+          }
+        }
+      }
+    }
   }
 });
 
@@ -97,7 +123,7 @@ const materialTheme = createTheme({
  */
 
 const Wrapper = styled.div`
-  background: #ffffff;
+  background: ${palette.darkGreen};
   width: 100vw;
   min-height: 100vh;
 `;
