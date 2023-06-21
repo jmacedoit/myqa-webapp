@@ -26,7 +26,28 @@ const translations = {
           resourceDatePrefix: 'added'
         },
         signIn: {
-          title: 'Sign in'
+          title: 'Sign in',
+          signUpButton: 'Sign up',
+          forgotPasswordButton: 'Forgot your password?'
+        },
+        signUp: {
+          title: 'Sign up'
+        },
+        signUpSuccess: {
+          title: 'Sign up successful',
+          description: 'You will receive an email with a confirmation link. Please click on it to activate your account.',
+          signInLabel: 'Sign in'
+        },
+        verifyEmail: {
+          title: 'Verify email',
+          description: 'Please activate your account by clicking on the link in the email we sent you.',
+          signInLabel: 'Already did'
+        },
+        emailVerfication: {
+          title: 'Email verification',
+          success: 'Your email has been verified. You can now sign in.',
+          error: 'There was an error verifying your email. Please try to sign in and request another verification email.',
+          signInLabel: 'Sign in'
         },
         knowledgeBase: {
           resourcesTitle: 'Resources',
@@ -46,19 +67,56 @@ const translations = {
           submitEditLabel: 'Save',
           submitAddLabel: 'Add'
         },
-        email: {
-          label: 'Email',
-          requiredError: 'Email is required',
-          invalidError: 'Write a valid email'
+        signIn: {
+          submitLabel: 'Sign in'
         },
-        password: {
-          label: 'Password',
-          requiredError: 'Password is required',
-          invalidError: 'Password is too short'
+        signUp: {
+          submitLabel: 'Sign up',
+          passwordChecks: {
+            title: 'Password rules:',
+            length: {
+              label: 'Between 8 and 24 characters'
+            },
+            lowercase: {
+              label: 'Contains lowercase characters'
+            },
+            uppercase: {
+              label: 'Contains uppercase characters'
+            },
+            number: {
+              label: 'Contains numbers'
+            },
+            specialCharacter: {
+              label: 'Contains symbols'
+            }
+          }
         },
-        resourceFile: {
-          label: 'File',
-          requiredError: 'File is required'
+        common: {
+          email: {
+            label: 'Email',
+            requiredError: 'Email is required',
+            invalidError: 'Write a valid email'
+          },
+          password: {
+            label: 'Password',
+            requiredError: 'Password is required',
+            patternError: 'Password must respect rules'
+          },
+          passwordRepetition: {
+            label: 'Password repetition',
+            requiredError: 'Password repetition is required',
+            nonMatchingError: 'Passwords are not equal'
+          },
+          resourceFile: {
+            label: 'File',
+            requiredError: 'File is required'
+          },
+          termsAndConditions: {
+            label: 'I agree with the <0>terms and conditions</0> and <1>privacy policy</1>.',
+            termsAndConditionsLink: 'terms and conditions',
+            privacyPolicyLink: 'privacy policy',
+            requiredError: 'You must agree with the terms and conditions and privacy policy to proceed'
+          }
         }
       }
     }

@@ -25,5 +25,6 @@ export const palette = {
  */
 
 export default {
-  defaultText: palette.extraDarkGreen
+  defaultText: palette.extraDarkGreen,
+  error: palette.orange
 };

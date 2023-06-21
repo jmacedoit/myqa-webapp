@@ -13,7 +13,7 @@ import React from 'react';
  * Styles.
  */
 
-const buttonStyles = (props: ButtonProps & { outlined: boolean }) => {
+const buttonStyles = (props: ButtonProps & { outlined?: boolean }) => {
   return {
     appearance: 'none',
     border: props.outlined ? `1px solid ${palette.darkGreen}` : 'none',
@@ -44,10 +44,10 @@ const buttonStyles = (props: ButtonProps & { outlined: boolean }) => {
  * File field component.
  */
 
-function MainButton(props) {
+function MainButton({ outlined, ...props }: ButtonProps & { outlined?: boolean }) {
   return (
     <Button
-      sx={buttonStyles(props)}
+      sx={buttonStyles({ outlined })}
       {...props}
     />
   );

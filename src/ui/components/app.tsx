@@ -42,6 +42,10 @@ import colors, { palette } from 'src/ui/styles/colors';
 import styled from 'styled-components';
 // eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
 import { AutoField, AutoForm } from 'uniforms-mui';
+import EmailVerification from './screens/email-verification';
+import SignUp from './screens/sign-up';
+import SignUpSuccess from './screens/sign-up-success';
+import VerifyEmail from './screens/verify-email';
 
 /*
  * Setup tanstack react query client.
@@ -86,6 +90,9 @@ const materialTheme = createTheme({
   palette: {
     primary: {
       main: colors.defaultText
+    },
+    error: {
+      main: colors.error
     }
   },
   typography: {
@@ -110,8 +117,25 @@ const materialTheme = createTheme({
             },
             '&.Mui-focused fieldset': {
               borderColor: palette.extraDarkGreen
+            },
+            '&.Mui-error fieldset': {
+              borderColor: colors.error
             }
           }
+        }
+      }
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
+        }
+      }
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
         }
       }
     }
@@ -300,9 +324,33 @@ export function AppCore() {
             />
 
             <Route
+              element={<SignUp />}
+              key={routes.signUp}
+              path={routes.signUp}
+            />
+
+            <Route
               element={<SignIn />}
               key={routes.home}
               path={routes.home}
+            />
+
+            <Route
+              element={<SignUpSuccess />}
+              key={routes.signUpSuccess}
+              path={routes.signUpSuccess}
+            />
+
+            <Route
+              element={<VerifyEmail />}
+              key={routes.verifyEmail}
+              path={routes.verifyEmail}
+            />
+
+            <Route
+              element={<EmailVerification />}
+              key={routes.emailVerification}
+              path={routes.emailVerification}
             />
 
             <Route element={<ProtectedRoute />}>

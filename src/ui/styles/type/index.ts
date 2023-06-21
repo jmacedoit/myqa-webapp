@@ -88,7 +88,7 @@ export const H5 = styled.h5`
 export const Paragraph = styled.p`
   font-family: 'Moderat', sans-serif;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300;
   font-size: ${18 / defaultRootFontSizePx}rem;
   line-height: 1.3333;
   letter-spacing: -0.05em;
@@ -99,7 +99,7 @@ export const Paragraph = styled.p`
 export const ParagraphLarge = styled.p`
   font-family: 'Moderat', sans-serif;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300;
   font-size: ${24 / defaultRootFontSizePx}rem;
   line-height: 1.3333;
   letter-spacing: -0.05em;
@@ -125,7 +125,7 @@ export const XSmall = styled.small`
   font-family: 'Moderat', sans-serif, sans-serif;
   font-style: normal;
   font-weight: 500;
-  font-size: 14px;
+  font-size: ${12 / defaultRootFontSizePx}rem;
   line-height: 1.3333;
   margin-bottom: ${units(2)}px;
   margin-top: 0;
@@ -143,6 +143,7 @@ export default {
   H3,
   H4,
   Paragraph,
+  ParagraphLarge,
   Small,
   SmallStrong,
   XSmall
