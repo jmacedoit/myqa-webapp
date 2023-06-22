@@ -68,10 +68,13 @@ const translations = {
           submitAddLabel: 'Add'
         },
         signIn: {
-          submitLabel: 'Sign in'
+          submitLabel: 'Sign in',
+          operationErrors: {
+            wrongCredentials: 'Email not registered or wrong password'
+          }
         },
         signUp: {
-          submitLabel: 'Sign up',
+          submitLabel: 'Continue',
           passwordChecks: {
             title: 'Password rules:',
             length: {
@@ -89,6 +92,10 @@ const translations = {
             specialCharacter: {
               label: 'Contains symbols'
             }
+          },
+          operationErrors: {
+            emailAlreadyRegisteredError: 'Email already registered',
+            genericError: 'There was an error creating your account. Please try again later.'
           }
         },
         common: {
@@ -116,6 +123,9 @@ const translations = {
             termsAndConditionsLink: 'terms and conditions',
             privacyPolicyLink: 'privacy policy',
             requiredError: 'You must agree with the terms and conditions and privacy policy to proceed'
+          },
+          operationErrors: {
+            genericError: 'There was an error. Please try again later.'
           }
         }
       }

@@ -15,7 +15,7 @@ import { getOrganizations } from 'src/services/backend/organizations';
 import { palette } from 'src/ui/styles/colors';
 import { properties } from 'src/utils/types';
 import { routes } from 'src/ui/routes';
-import { setActiveOrganizationId } from 'src/state/slices/ui';
+import { addNotification, setActiveOrganizationId } from 'src/state/slices/ui';
 import { setOrganizationsAction } from 'src/state/slices/data';
 import { translationKeys as translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
@@ -77,7 +77,23 @@ function SignIn() {
   const signUpHref = useHref(routes.signUp);
   const formRef = useRef<any>(null);
   const authentication = useMutation(async (data: SignInData) => {
-    await authenticate(data);
+    try {
+      await authenticate(data);
+    } catch (error) {
+      if (error?.status === 401) {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.signIn.operationErrors.wrongCredentials),
+          type: 'error'
+        }));
+      } else {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.common.operationErrors.genericError),
+          type: 'error'
+        }));
+      }
+
+      return;
+    }
 
     const user = await getAuthenticatedUser();
     const organizations = await getOrganizations();

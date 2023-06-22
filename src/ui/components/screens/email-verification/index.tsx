@@ -36,7 +36,7 @@ function EmailVerification() {
     if (token) {
       verification.mutate(token);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = (
     <>
@@ -58,7 +58,7 @@ function EmailVerification() {
         {t(translationKeys.screens.emailVerfication.title)}
       </Type.H3>
 
-      {verification.isLoading ? (
+      {verification ? (
         <Type.Paragraph style={{ marginBottom: `${units(4)}px`, textAlign: 'center' }}>
           <CircularProgress />
         </Type.Paragraph>

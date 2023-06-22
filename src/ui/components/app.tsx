@@ -4,10 +4,10 @@
  */
 
 import 'src/ui/i18n';
+import { Alert, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Slide, Snackbar, SwipeableDrawer } from '@mui/material';
 import { FromSchema } from 'json-schema-to-ts';
 import { GlobalStyle } from 'src/ui/styles/global';
 import { Helmet } from 'react-helmet';
-import { IconButton, List, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer } from '@mui/material';
 import { JSONSchemaType } from 'ajv';
 import { MenuRounded } from '@mui/icons-material';
 import { Normalize } from 'styled-normalize';
@@ -19,8 +19,8 @@ import { ScreenClassProvider, setConfiguration } from 'react-grid-system';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { matchPath } from 'react-router';
+import { removeNotification, selectActiveOrganizationId, selectNotifications, setActiveOrganizationId } from 'src/state/slices/ui';
 import { routes } from 'src/ui/routes';
-import { selectActiveOrganizationId, setActiveOrganizationId } from 'src/state/slices/ui';
 import { selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { selectOrganizations } from 'src/state/slices/data';
 import { store } from 'src/state/store';
@@ -33,7 +33,7 @@ import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import KnowledgeBaseScreen from './screens/knowledge-base';
 import KnowledgeBasesListingScreen from './screens/knowledge-bases-listing';
 import ProtectedRoute from './protected-route';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SignIn from './screens/sign-in';
 import Styleguide from './screens/styleguide';
 import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
@@ -42,6 +42,7 @@ import colors, { palette } from 'src/ui/styles/colors';
 import styled from 'styled-components';
 // eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
 import { AutoField, AutoForm } from 'uniforms-mui';
+import { NotificationMessage } from 'src/types/notification';
 import EmailVerification from './screens/email-verification';
 import SignUp from './screens/sign-up';
 import SignUpSuccess from './screens/sign-up-success';
@@ -193,16 +194,37 @@ export function AppCore() {
   const authenticatedUser = useAppSelector(selectAuthenticatedUser);
   const organizations = useAppSelector(selectOrganizations);
   const activeOrganizationId = useAppSelector(selectActiveOrganizationId);
+  const notifications = useAppSelector(selectNotifications);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [previousTopNotification, setPreviousTopNotification] = useState<NotificationMessage>();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const handleOpenMenu = useCallback(() => setMenuOpen(true), []);
   const handleCloseMenu = useCallback(() => setMenuOpen(false), []);
   const dispatch = useAppDispatch();
-
   const questionSchema = createOrganizationSelectionSchema(t, organizations);
   const schemaValidator = createDefaultValidator(questionSchema as JSONSchemaType<OrganizationSelectionData>);
-  const bridge = new JSONSchemaBridge(questionSchema, schemaValidator)
+  const bridge = new JSONSchemaBridge(questionSchema, schemaValidator);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const firstNotificationId = notifications[0]?.id;
+
+      if (firstNotificationId !== previousTopNotification?.id) {
+        setTimeout(() => {
+          dispatch(removeNotification(firstNotificationId as string));
+        }, 3000);
+      }
+
+      setSnackbarOpen(true);
+      setPreviousTopNotification(notifications[0]);
+    } else {
+      setTimeout(() => {
+        setSnackbarOpen(false);
+      }, 1000);
+    }
+  }, [notifications]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
@@ -246,6 +268,22 @@ export function AppCore() {
       <Normalize />
 
       <GlobalStyle />
+
+      <Snackbar
+        TransitionComponent={Slide}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        key={previousTopNotification?.id}
+        message={previousTopNotification?.message}
+        open={snackbarOpen}
+      >
+        <Alert
+          severity={previousTopNotification?.type}
+          sx={{ color: palette.white }}
+          variant={'filled'}
+        >
+          {previousTopNotification?.message}
+        </Alert>
+      </Snackbar>
 
       <SwipeableDrawer
         anchor='left'

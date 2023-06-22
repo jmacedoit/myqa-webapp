@@ -9,6 +9,7 @@ import { FieldWrapper, StyledErrorField } from 'src/ui/components/fields/form-mi
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { Trans, useTranslation } from 'react-i18next';
+import { addNotification } from 'src/state/slices/ui';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { palette } from 'src/ui/styles/colors';
 import { properties } from 'src/utils/types';
@@ -16,6 +17,7 @@ import { registerUser } from 'src/services/backend/users';
 import { routes } from 'src/ui/routes';
 import { translationKeys as translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
+import { useAppDispatch } from 'src/ui/hooks/redux';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import MainButton from 'src/ui/components/buttons/main-button';
@@ -88,11 +90,26 @@ function SignUp() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
+  const dispatch = useAppDispatch();
   const formRef = useRef<any>(null);
   const userRegistration = useMutation(async (data: SignUpData) => {
-    await registerUser(data);
+    try {
+      await registerUser(data);
 
-    navigate(routes.signUpSuccess);
+      navigate(routes.signUpSuccess);
+    } catch (error) {
+      if (error?.status === 409) {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.signUp.operationErrors.emailAlreadyRegisteredError),
+          type: 'error'
+        }));
+      } else {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.signUp.operationErrors.genericError),
+          type: 'error'
+        }));
+      }
+    }
   });
 
   const termsAndConditionsLabel = (
