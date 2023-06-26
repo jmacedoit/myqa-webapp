@@ -11,6 +11,8 @@ import colors from 'src/ui/styles/colors';
  * Global style.
  */
 
+export const defaultRootFontSizePx = 16;
+
 export const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'Moderat';
@@ -99,7 +101,7 @@ export const GlobalStyle = createGlobalStyle`
 
 
   html {
-    font-size: 16px;
+    font-size: ${defaultRootFontSizePx}px;
     font-family: 'Moderat', sans-serif;
     color: ${colors.defaultText};
     box-sizing: border-box;

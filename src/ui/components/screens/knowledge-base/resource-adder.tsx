@@ -34,7 +34,7 @@ const createResourceCreationSchema = (t: (key: string) => string) => ({
       isFile: true,
       type: 'object',
       uniforms: { component: FileField },
-      title: t(translationKeys.forms.resourceFile.label)
+      title: t(translationKeys.forms.common.resourceFile.label)
     },
     dummy: {
       type: 'string',
@@ -43,7 +43,7 @@ const createResourceCreationSchema = (t: (key: string) => string) => ({
   },
   errorMessage: {
     properties: {
-      file: t(translationKeys.forms.resourceFile.requiredError)
+      file: t(translationKeys.forms.common.resourceFile.requiredError)
     }
   },
   required: ['file'],
