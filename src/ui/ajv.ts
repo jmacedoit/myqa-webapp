@@ -4,7 +4,7 @@
  */
 
 import { isNil } from 'lodash';
-import Ajv, { JSONSchemaType } from 'ajv';
+import Ajv, { ErrorObject, JSONSchemaType } from 'ajv';
 import addErrors from 'ajv-errors';
 import addFormats from 'ajv-formats';
 
@@ -31,17 +31,31 @@ ajv.addKeyword({
   errors: false
 });
 
+ajv.addKeyword({
+  keyword: 'equalToAnother',
+  validate: (schema, data, parentSchema, dataCtx) => {
+    return data === dataCtx?.parentData[schema?.field];
+  },
+  errors: true
+});
+
 /*
  * Default validator that simply returns model errors.
  */
 
-export function createDefaultValidator<T>(schema: JSONSchemaType<T>) {
+export function createDefaultValidator<T>(schema: JSONSchemaType<T>, errorMapper?: (error: ErrorObject) => ErrorObject) {
   const validator = ajv.compile(schema);
 
   return (model: Record<string, unknown>) => {
     validator(model);
 
-    const errorsDetails = validator.errors?.map(error => {
+    const errorsDetails = validator.errors?.map(originalError => {
+      let error = originalError;
+
+      if (!isNil(errorMapper)) {
+        error = errorMapper(error);
+      }
+
       const detail = error.params?.errors?.[0];
 
       if (isNil(detail)) {

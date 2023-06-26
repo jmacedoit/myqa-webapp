@@ -3,51 +3,33 @@
  * Module dependencies.
  */
 
-import { AutoField, AutoForm, ErrorField, SubmitField } from 'uniforms-mui';
-import { Col, Container, Row } from 'react-grid-system';
+import { AutoField, AutoForm } from 'uniforms-mui';
+import { FieldWrapper, StyledErrorField } from 'src/ui/components/fields/form-misc';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { JSONSchemaType } from 'ajv';
-import { Paper } from '@mui/material';
+import { addNotification, setActiveOrganizationId } from 'src/state/slices/ui';
 import { authenticate, getAuthenticatedUser } from 'src/services/backend/authentication';
 import { authenticateUser } from 'src/state/slices/authenticated-user';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { getOrganizations } from 'src/services/backend/organizations';
+import { palette } from 'src/ui/styles/colors';
 import { properties } from 'src/utils/types';
 import { routes } from 'src/ui/routes';
-import { setActiveOrganizationId } from 'src/state/slices/ui';
 import { setOrganizationsAction } from 'src/state/slices/data';
 import { translationKeys as translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch } from 'src/ui/hooks/redux';
+import { useHref } from 'react-router';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
+import MainButton from 'src/ui/components/buttons/main-button';
+import QuickActionPage from 'src/ui/components/layout/quick-action-page';
+import React, { useRef } from 'react';
+import TextField from 'src/ui/components/fields/text-field';
 import Type from 'src/ui/styles/type';
-import styled from 'styled-components';
-
-/*
- * Styles.
- */
-
-const StyledContainer = styled(Container)`
-  padding-top: ${units(10)}px;
-`;
-
-const StyledColumn = styled(Col)`
-  text-align: center;
-`;
-
-const StyledErrorField = styled(ErrorField)`
-  text-align: left;
-
-  margin-bottom: ${units(1)}px;
-`;
-
-const StyledPaper = styled(Paper)`
-  padding: ${units(8)}px;
-`;
+import UnderlinedButton from 'src/ui/components/buttons/underlined-button';
 
 /*
  * Sign in schema.
@@ -59,22 +41,25 @@ const creatSignInSchema = (t: (key: string) => string) => ({
     email: {
       type: 'string',
       format: 'email',
-      title: t(translationKeys.forms.email.label)
+      component: TextField,
+      title: t(translationKeys.forms.common.email.label)
     },
     password: {
       type: 'string',
-      title: t(translationKeys.forms.password.label)
+      title: t(translationKeys.forms.common.password.label),
+      component: TextField,
+      showMaskPasswordControl: true
     }
   },
   additionalProperties: false,
   required: ['email', 'password'],
   errorMessage: {
     required: {
-      email: t(translationKeys.forms.email.requiredError),
-      password: t(translationKeys.forms.password.requiredError)
+      email: t(translationKeys.forms.common.email.requiredError),
+      password: t(translationKeys.forms.common.password.requiredError)
     },
     properties: {
-      email: t(translationKeys.forms.email.invalidError)
+      email: t(translationKeys.forms.common.email.invalidError)
     }
   }
 }) as const;
@@ -89,8 +74,26 @@ function SignIn() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const signUpHref = useHref(routes.signUp);
+  const formRef = useRef<any>(null);
   const authentication = useMutation(async (data: SignInData) => {
-    await authenticate(data);
+    try {
+      await authenticate(data);
+    } catch (error) {
+      if (error?.status === 401) {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.signIn.operationErrors.wrongCredentials),
+          type: 'error'
+        }));
+      } else {
+        dispatch(addNotification({
+          message: t(translationKeys.forms.common.operationErrors.genericError),
+          type: 'error'
+        }));
+      }
+
+      return;
+    }
 
     const user = await getAuthenticatedUser();
     const organizations = await getOrganizations();
@@ -107,47 +110,74 @@ function SignIn() {
   const bridge = new JSONSchemaBridge(signInSchema, schemaValidator);
 
   return (
-    <>
-      <StyledContainer>
-        <Row>
-          <StyledColumn md={3} />
+    <QuickActionPage>
+      <Type.H3>
+        {t(translationKeys.screens.signIn.title)}
+      </Type.H3>
 
-          <StyledColumn
-            md={6}
-            xs={12}
+      <AutoForm
+        onSubmit={(model: SignInData) => {
+          authentication.mutate(model);
+        }}
+        ref={formRef}
+        schema={bridge}
+      >
+        <div style={{ marginBottom: units(4), textAlign: 'left' }}>
+          <FieldWrapper>
+            <AutoField name={properties<SignInData>().email} />
+
+            <StyledErrorField name={properties<SignInData>().email} />
+          </FieldWrapper>
+
+          <FieldWrapper>
+            <AutoField
+              name={properties<SignInData>().password}
+              type={'password'}
+            />
+
+            <StyledErrorField name={properties<SignInData>().password} />
+          </FieldWrapper>
+        </div>
+
+        <div style={{ marginBottom: units(6) }}>
+          <MainButton
+            loading={authentication.isLoading}
+            onClick={event => {
+              event.preventDefault();
+
+              formRef.current?.submit();
+            }}
+            style={{ marginRight: units(1) }}
           >
-            <StyledPaper variant={'outlined'}>
-              <Type.H3>
-                {t(translationKeys.screens.signIn.title)}
-              </Type.H3>
+            {t(translationKeys.forms.signIn.submitLabel)}
+          </MainButton>
 
-              <AutoForm
-                onSubmit={(model: SignInData) => {
-                  authentication.mutate(model);
-                }}
-                schema={bridge}
-              >
-                <div style={{ marginBottom: units(4), textAlign: 'left' }}>
-                  <AutoField name={properties<SignInData>().email} />
+          <MainButton
+            href={signUpHref}
+            outlined
+          >
+            {t(translationKeys.screens.signIn.signUpButton)}
+          </MainButton>
+        </div>
 
-                  <StyledErrorField name={properties<SignInData>().email} />
+        <UnderlinedButton
+          color={palette.mildGreenDark}
+          display={'block'}
+          isLink
+          to={routes.recoverPassword}
+        >
+          <Type.Paragraph style={{ marginBottom: 0 }}>
+            {t(translationKeys.screens.signIn.forgotPasswordButton)}
+          </Type.Paragraph>
+        </UnderlinedButton>
 
-                  <AutoField
-                    name={properties<SignInData>().password}
-                    type={'password'}
-                  />
-
-                  <StyledErrorField name={properties<SignInData>().password} />
-                </div>
-
-                <SubmitField />
-              </AutoForm>
-            </StyledPaper>
-          </StyledColumn>
-        </Row>
-      </StyledContainer>
-    </>
+      </AutoForm>
+    </QuickActionPage>
   );
 }
+
+/*
+ * Export the component.
+ */
 
 export default React.memo(SignIn);

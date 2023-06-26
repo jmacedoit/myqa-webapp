@@ -4,10 +4,10 @@
  */
 
 import 'src/ui/i18n';
+import { Alert, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Slide, Snackbar, SwipeableDrawer } from '@mui/material';
 import { FromSchema } from 'json-schema-to-ts';
 import { GlobalStyle } from 'src/ui/styles/global';
 import { Helmet } from 'react-helmet';
-import { IconButton, List, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer } from '@mui/material';
 import { JSONSchemaType } from 'ajv';
 import { MenuRounded } from '@mui/icons-material';
 import { Normalize } from 'styled-normalize';
@@ -19,8 +19,8 @@ import { ScreenClassProvider, setConfiguration } from 'react-grid-system';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { matchPath } from 'react-router';
+import { removeNotification, selectActiveOrganizationId, selectNotifications, setActiveOrganizationId } from 'src/state/slices/ui';
 import { routes } from 'src/ui/routes';
-import { selectActiveOrganizationId, setActiveOrganizationId } from 'src/state/slices/ui';
 import { selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { selectOrganizations } from 'src/state/slices/data';
 import { store } from 'src/state/store';
@@ -33,15 +33,24 @@ import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import KnowledgeBaseScreen from './screens/knowledge-base';
 import KnowledgeBasesListingScreen from './screens/knowledge-bases-listing';
 import ProtectedRoute from './protected-route';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SignIn from './screens/sign-in';
 import Styleguide from './screens/styleguide';
 import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 import breakpoints from 'src/ui/styles/breakpoints';
-import colors from 'src/ui/styles/colors';
+import colors, { palette } from 'src/ui/styles/colors';
 import styled from 'styled-components';
 // eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
 import { AutoField, AutoForm } from 'uniforms-mui';
+import { NotificationMessage } from 'src/types/notification';
+import EmailVerification from './screens/email-verification';
+import RecoverPassword from './screens/recover-password';
+import RecoverPasswordEmailSent from './screens/recover-password-email-sent';
+import ResetPassword from './screens/reset-password';
+import ResetPasswordSuccess from './screens/reset-password-success';
+import SignUp from './screens/sign-up';
+import SignUpSuccess from './screens/sign-up-success';
+import VerifyEmail from './screens/verify-email';
 
 /*
  * Setup tanstack react query client.
@@ -65,6 +74,7 @@ const queryClient = new QueryClient({
 
 setConfiguration({
   breakpoints: [breakpoints.sm, breakpoints.md, breakpoints.lg, breakpoints.xl, breakpoints.xxl],
+  containerWidths: [540, 740, 960, 1312, 1540, 1810],
   gutterWidth: 32
 });
 
@@ -85,10 +95,55 @@ const materialTheme = createTheme({
   palette: {
     primary: {
       main: colors.defaultText
+    },
+    error: {
+      main: colors.error
     }
   },
   typography: {
-    fontFamily: '"ObjectSans", sans-serif'
+    fontFamily: '"Moderat", sans-serif'
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& label': {
+            color: palette.extraDarkGreen
+          },
+          '& input': {
+            color: palette.extraDarkGreen
+          },
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: palette.darkGreen
+            },
+            '&:hover fieldset': {
+              borderColor: palette.extraDarkGreen
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: palette.extraDarkGreen
+            },
+            '&.Mui-error fieldset': {
+              borderColor: colors.error
+            }
+          }
+        }
+      }
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
+        }
+      }
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
+        }
+      }
+    }
   }
 });
 
@@ -97,7 +152,7 @@ const materialTheme = createTheme({
  */
 
 const Wrapper = styled.div`
-  background: #ffffff;
+  background: ${palette.darkGreen};
   width: 100vw;
   min-height: 100vh;
 `;
@@ -143,16 +198,37 @@ export function AppCore() {
   const authenticatedUser = useAppSelector(selectAuthenticatedUser);
   const organizations = useAppSelector(selectOrganizations);
   const activeOrganizationId = useAppSelector(selectActiveOrganizationId);
+  const notifications = useAppSelector(selectNotifications);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [previousTopNotification, setPreviousTopNotification] = useState<NotificationMessage>();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const handleOpenMenu = useCallback(() => setMenuOpen(true), []);
   const handleCloseMenu = useCallback(() => setMenuOpen(false), []);
   const dispatch = useAppDispatch();
-
   const questionSchema = createOrganizationSelectionSchema(t, organizations);
   const schemaValidator = createDefaultValidator(questionSchema as JSONSchemaType<OrganizationSelectionData>);
-  const bridge = new JSONSchemaBridge(questionSchema, schemaValidator)
+  const bridge = new JSONSchemaBridge(questionSchema, schemaValidator);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const firstNotificationId = notifications[0]?.id;
+
+      if (firstNotificationId !== previousTopNotification?.id) {
+        setTimeout(() => {
+          dispatch(removeNotification(firstNotificationId as string));
+        }, 3000);
+      }
+
+      setSnackbarOpen(true);
+      setPreviousTopNotification(notifications[0]);
+    } else {
+      setTimeout(() => {
+        setSnackbarOpen(false);
+      }, 1000);
+    }
+  }, [notifications]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
@@ -196,6 +272,22 @@ export function AppCore() {
       <Normalize />
 
       <GlobalStyle />
+
+      <Snackbar
+        TransitionComponent={Slide}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        key={previousTopNotification?.id}
+        message={previousTopNotification?.message}
+        open={snackbarOpen}
+      >
+        <Alert
+          severity={previousTopNotification?.type}
+          sx={{ color: palette.white }}
+          variant={'filled'}
+        >
+          {previousTopNotification?.message}
+        </Alert>
+      </Snackbar>
 
       <SwipeableDrawer
         anchor='left'
@@ -274,9 +366,57 @@ export function AppCore() {
             />
 
             <Route
+              element={<SignUp />}
+              key={routes.signUp}
+              path={routes.signUp}
+            />
+
+            <Route
               element={<SignIn />}
               key={routes.home}
               path={routes.home}
+            />
+
+            <Route
+              element={<SignUpSuccess />}
+              key={routes.signUpSuccess}
+              path={routes.signUpSuccess}
+            />
+
+            <Route
+              element={<VerifyEmail />}
+              key={routes.verifyEmail}
+              path={routes.verifyEmail}
+            />
+
+            <Route
+              element={<EmailVerification />}
+              key={routes.emailVerification}
+              path={routes.emailVerification}
+            />
+
+            <Route
+              element={<RecoverPassword />}
+              key={routes.recoverPassword}
+              path={routes.recoverPassword}
+            />
+
+            <Route
+              element={<RecoverPasswordEmailSent />}
+              key={routes.recoverPasswordEmailSent}
+              path={routes.recoverPasswordEmailSent}
+            />
+
+            <Route
+              element={<ResetPassword />}
+              key={routes.resetPassword}
+              path={routes.resetPassword}
+            />
+
+            <Route
+              element={<ResetPasswordSuccess />}
+              key={routes.resetPasswordSuccess}
+              path={routes.resetPasswordSuccess}
             />
 
             <Route element={<ProtectedRoute />}>
