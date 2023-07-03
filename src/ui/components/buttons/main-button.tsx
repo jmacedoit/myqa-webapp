@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-import { Button, ButtonProps } from '@mui/material';
+import { ButtonProps } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { defaultRootFontSizePx } from 'src/ui/styles/global';
 import { palette } from 'src/ui/styles/colors';

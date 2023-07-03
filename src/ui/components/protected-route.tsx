@@ -12,6 +12,7 @@ import { isNil } from 'lodash';
 import { onClient } from 'src/utils/environment';
 import { selectActiveOrganizationId, setActiveOrganizationId } from 'src/state/slices/ui';
 import { selectOrganizations, setOrganizationsAction } from 'src/state/slices/data';
+import { units } from 'src/ui/styles/dimensions';
 import { useAppSelector } from 'src/ui/hooks/redux';
 import { useAuthenticationHandler } from 'src/ui/hooks/authentication';
 import { useDispatch } from 'react-redux';
@@ -47,7 +48,11 @@ export default function ProtectedRoute({ children }: { children?: React.ReactEle
       refetch();
     }
 
-    return <CircularProgress />;
+    return (
+      <div style={{ padding: units(2), textAlign: 'center' }}>
+        <CircularProgress />
+      </div>
+    );
   }
 
   return !isNil(children) ? children : <Outlet />;

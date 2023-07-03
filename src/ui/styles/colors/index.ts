@@ -6,6 +6,7 @@
 export const palette = {
   white: '#FFFFFF',
   oliveGreen: '#DDEEDB',
+  oliveGreenDark: '#CBDDC7',
   paleGreen: '#BAEFD6',
   softGreen: '#A3E4C1',
   lightGreen: '#F3FFF1',
@@ -26,5 +27,7 @@ export const palette = {
 
 export default {
   defaultText: palette.extraDarkGreen,
-  error: palette.orange
+  error: palette.orange,
+  success: palette.mildGreen,
+  warning: palette.yellow
 };

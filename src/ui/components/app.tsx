@@ -18,6 +18,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ScreenClassProvider, setConfiguration } from 'react-grid-system';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { createDefaultValidator } from 'src/ui/ajv';
+import { gutterSize, units } from 'src/ui/styles/dimensions';
 import { matchPath } from 'react-router';
 import { removeNotification, selectActiveOrganizationId, selectNotifications, setActiveOrganizationId } from 'src/state/slices/ui';
 import { routes } from 'src/ui/routes';
@@ -25,7 +26,6 @@ import { selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { selectOrganizations } from 'src/state/slices/data';
 import { store } from 'src/state/store';
 import { translationKeys } from 'src/translations';
-import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { useTranslation } from 'react-i18next';
 import AnswerScreen from './screens/answer';
@@ -75,7 +75,7 @@ const queryClient = new QueryClient({
 setConfiguration({
   breakpoints: [breakpoints.sm, breakpoints.md, breakpoints.lg, breakpoints.xl, breakpoints.xxl],
   containerWidths: [540, 740, 960, 1312, 1540, 1810],
-  gutterWidth: 32
+  gutterWidth: gutterSize
 });
 
 /*
@@ -98,6 +98,9 @@ const materialTheme = createTheme({
     },
     error: {
       main: colors.error
+    },
+    success: {
+      main: colors.success
     }
   },
   typography: {
@@ -153,7 +156,7 @@ const materialTheme = createTheme({
 
 const Wrapper = styled.div`
   background: ${palette.darkGreen};
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
 `;
 

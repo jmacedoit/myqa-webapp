@@ -4,6 +4,7 @@
  */
 
 import { HTMLFieldProps, connectField } from 'uniforms';
+import { palette } from 'src/ui/styles/colors';
 import { units } from 'src/ui/styles/dimensions';
 import { useDropzone } from 'react-dropzone';
 import React from 'react';
@@ -18,8 +19,8 @@ const Dropzone = styled.div`
   justify-content: center;
   align-items: center;
   padding: ${units(2)}px;
-  background-color: #f5f5f5;
-  border: 2px dashed #e0e0e0;
+  background-color: ${palette.lightGreen};
+  border: 2px dashed ${palette.oliveGreenDark};
   cursor: pointer;
   margin-bottom: ${units(2)}px;
 `;
@@ -36,7 +37,7 @@ function FileField({ onChange, onFileAdded, value }: FileProps) {
       'text/html': ['.html', '.htm'],
       'text/plain': ['.txt'],
       'application/msword': ['.doc', '.docx'],
-      'application/pdf': ['.pdf'],
+      'application/pdf': ['.pdf']
     },
     maxFiles: 1,
     multiple: false,

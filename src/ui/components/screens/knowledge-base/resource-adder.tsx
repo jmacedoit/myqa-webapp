@@ -4,11 +4,11 @@
  */
 
 import { AutoField, AutoForm, ErrorField, HiddenField } from 'uniforms-mui';
-import { Button, CircularProgress, DialogActions, DialogContent } from '@mui/material';
-import { Col, Row } from 'react-grid-system';
+import { DialogActions } from 'src/ui/components/layout/dialog-actions';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchemaType } from 'ajv';
 import { addFileResourceToKnowledgeBase } from 'src/services/backend/resources';
+import { addNotification } from 'src/state/slices/ui';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { createKnowledgeBaseResourceAction } from 'src/state/slices/data';
 import { isNil } from 'lodash';
@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import FileField from 'src/ui/components/fields/file';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import React, { useRef } from 'react';
+import SimpleButton from 'src/ui/components/buttons/simple-button';
 import Type from 'src/ui/styles/type';
 
 /*
@@ -72,6 +73,11 @@ function ResourceAdder({ onResourceAdded }: { onResourceAdded: () => void }) {
       knowledgeBaseId,
       resource: addedResource
     }));
+
+    dispatch(addNotification({
+      message: t(translationKeys.screens.addResource.successMessage),
+      type: 'success'
+    }));
   });
 
   const handleSubmit = async (model: ResourceCreationData) => {
@@ -86,47 +92,45 @@ function ResourceAdder({ onResourceAdded }: { onResourceAdded: () => void }) {
 
   return (
     <>
-      <DialogContent>
-        <Row>
-          <Col xs={12}>
-            <Type.H4>
-              {t(translationKeys.screens.addResource.title)}
-            </Type.H4>
+      <Type.H4>
+        {t(translationKeys.screens.addResource.title)}
+      </Type.H4>
 
-            <AutoForm
-              onSubmit={handleSubmit}
-              ref={formRef}
-              schema={bridge}
-            >
-              <AutoField
-                name={properties<ResourceCreationData>().file}
-                onFileAdded={() => {
-                  // Nasty hack to retrigger model change when adding a file.
-                  formRef.current?.change(properties<ResourceCreationData>().dummy, Math.random().toString());
-                }}
-              />
+      <AutoForm
+        onSubmit={handleSubmit}
+        ref={formRef}
+        schema={bridge}
+      >
+        <AutoField
+          name={properties<ResourceCreationData>().file}
+          onFileAdded={() => {
+            // Nasty hack to retrigger model change when adding a file.
+            formRef.current?.change(properties<ResourceCreationData>().dummy, Math.random().toString());
+          }}
+        />
 
-              <HiddenField name={properties<ResourceCreationData>().dummy ?? ''} />
+        <HiddenField name={properties<ResourceCreationData>().dummy ?? ''} />
 
-              <ErrorField name={properties<ResourceCreationData>().file} />
-            </AutoForm>
-          </Col>
-        </Row>
-      </DialogContent>
+        <ErrorField name={properties<ResourceCreationData>().file} />
+      </AutoForm>
+
+      {resourceCreation.isLoading && (
+        <Type.XSmall>
+          {t(translationKeys.screens.addResource.loadingMessge)}
+        </Type.XSmall>
+      )}
 
       <DialogActions>
-        {resourceCreation.isLoading ? (
-          <CircularProgress />
-        ) : (
-          <Button onClick={event => {
+        <SimpleButton
+          loading={resourceCreation.isLoading}
+          onClick={event => {
             event.preventDefault();
 
             formRef.current?.submit();
           }}
-          >
-            {t(translationKeys.forms.knowledgeBase.submitAddLabel)}
-          </Button>
-        )}
+        >
+          {t(translationKeys.forms.updateKnowledgeBase.submitAddLabel)}
+        </SimpleButton>
       </DialogActions>
     </>
   );

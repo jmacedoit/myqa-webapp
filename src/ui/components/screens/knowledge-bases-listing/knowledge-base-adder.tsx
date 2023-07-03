@@ -3,24 +3,32 @@
  * Module dependencies.
  */
 
-import { AddCircle } from '@mui/icons-material';
 import { AutoField, AutoForm, ErrorField } from 'uniforms-mui';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog } from '@mui/material';
+import { DialogActions } from '../../layout/dialog-actions';
+import { DialogBodyContainer } from 'src/ui/components/layout/dialog-body-container';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchemaType } from 'ajv';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { createKnowledgeBase } from 'src/services/backend/knowledge-bases';
 import { createKnowledgeBaseAction } from 'src/state/slices/data';
 import { isNil } from 'lodash';
+import { palette } from 'src/ui/styles/colors';
 import { properties } from 'src/utils/types';
 import { selectActiveOrganization } from 'src/state/slices/ui';
+import { staticUri } from 'src/utils/environment';
 import { translationKeys } from 'src/translations';
+import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from 'src/ui/hooks/redux';
 import { useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import KnowledgeBaseContainer from './knowledge-base-container';
 import React, { useRef, useState } from 'react';
+import SimpleButton from 'src/ui/components/buttons/simple-button';
+import Type from 'src/ui/styles/type';
+import breakpoints from 'src/ui/styles/breakpoints';
 import styled from 'styled-components';
 
 /*
@@ -30,28 +38,64 @@ import styled from 'styled-components';
 const HeightDummy = styled.div`
   padding-top: 100%;
 `;
-
-const InnerContainer = styled.button`
-  border-width: 0;
-  padding: 0;
-  border: none;
-  appearance: none;
-  background: none;
+const InnerContainer = styled.div`
+  background-color: ${palette.extraDarkGreen};
+  color: ${palette.white};
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  padding: ${units(2)}px ${units(4)}px;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: 0.1s opacity;
+`;
 
-  &:hover {
-    opacity: 1;
+const Name = styled(Type.H5)`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: ${units(1)}px;
+  overflow-x: clip;
+`;
+
+const ImageContainer = styled.div`
+  flex: 1;
+  margin-bottom: 10%;
+  position: relative;
+`;
+
+const InfoContainer = styled.div`
+  padding-bottom: ${units(3)}px;
+`;
+
+const TreeSeed = styled.img`
+  width: 65%;
+
+  @media (min-width: ${breakpoints.sm}px) {
+    width: 55%;
   }
+
+  @media (min-width: ${breakpoints.xl}px) {
+    width: 65%;
+  }
+`;
+
+const ImageSpacer = styled.div`
+  padding-top: 61.22%;
+`;
+
+const TreeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 `;
 
 /*
@@ -65,15 +109,15 @@ const createCreateKnowledgeBaseSchema = (t: (key: string) => string) => ({
       type: 'string',
       minLength: 4,
       maxLength: 32,
-      title: t(translationKeys.forms.knowledgeBase.name.label)
+      title: t(translationKeys.forms.updateKnowledgeBase.name.label)
     }
   },
   errorMessage: {
     required: {
-      name: t(translationKeys.forms.knowledgeBase.name.requiredError)
+      name: t(translationKeys.forms.updateKnowledgeBase.name.requiredError)
     },
     properties: {
-      name: t(translationKeys.forms.knowledgeBase.name.invalidError)
+      name: t(translationKeys.forms.updateKnowledgeBase.name.invalidError)
     }
   },
   required: ['name'],
@@ -86,7 +130,7 @@ type CreateData = FromSchema<ReturnType<typeof createCreateKnowledgeBaseSchema>>
  * Knowledge base component.
  */
 
-export default function KnowledgeBaseComponent() {
+export default function KnowledgeBaseComponent(props: { inGridOf: number }) {
   const { t } = useTranslation();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const activeOrganization = useAppSelector(selectActiveOrganization);
@@ -124,47 +168,65 @@ export default function KnowledgeBaseComponent() {
 
   return (
     <>
-      <KnowledgeBaseContainer variant={'outlined'}>
+      <KnowledgeBaseContainer
+        inGridOf={props.inGridOf}
+        onClick={handleOpenCreateDialog}
+      >
         <HeightDummy />
 
-        <InnerContainer onClick={handleOpenCreateDialog}>
-          <AddCircle sx={{ fontSize: '80px' }} />
+        <InnerContainer>
+          <ImageContainer>
+            <ImageSpacer />
+
+            <TreeContainer>
+              <TreeSeed src={staticUri(`assets/images/tree-seed.png`)} />
+            </TreeContainer>
+          </ImageContainer>
+
+          <InfoContainer>
+            <Name>
+              {t(translationKeys.screens.knowledgeBases.createKnowledgeBaseButtonLabel)}
+            </Name>
+
+            <Type.Paragraph style={{ marginBottom: 0, fontWeight: 600 }}>
+              <AddOutlinedIcon />
+            </Type.Paragraph>
+          </InfoContainer>
         </InnerContainer>
       </KnowledgeBaseContainer>
 
       <Dialog
+        PaperComponent={DialogBodyContainer}
+        fullWidth
+        maxWidth={'xs'}
         onClose={handleCloseCreateDialog}
         open={createDialogOpen}
       >
-        <DialogTitle>
+        <Type.H5>
           {t(translationKeys.screens.knowledgeBases.createKnowledgeBase)}
-        </DialogTitle>
+        </Type.H5>
 
-        <DialogContent>
-          <AutoForm
-            onSubmit={handleCreateKnowledgeBaseSubmit}
-            ref={createForRef}
-            schema={bridge}
-          >
-            <AutoField name={properties<CreateData>().name} />
+        <AutoForm
+          onSubmit={handleCreateKnowledgeBaseSubmit}
+          ref={createForRef}
+          schema={bridge}
+        >
+          <AutoField name={properties<CreateData>().name} />
 
-            <ErrorField name={properties<CreateData>().name} />
-          </AutoForm>
-        </DialogContent>
+          <ErrorField name={properties<CreateData>().name} />
+        </AutoForm>
 
         <DialogActions>
-          {knowledgeBaseCreation.isLoading ? (
-            <CircularProgress />
-          ) : (
-            <Button onClick={event => {
+          <SimpleButton
+            loading={knowledgeBaseCreation.isLoading}
+            onClick={event => {
               event.preventDefault();
 
               createForRef.current?.submit();
             }}
-            >
-              {t(translationKeys.forms.knowledgeBase.submitEditLabel)}
-            </Button>
-          )}
+          >
+            {t(translationKeys.forms.updateKnowledgeBase.submitEditLabel)}
+          </SimpleButton>
         </DialogActions>
       </Dialog>
     </>

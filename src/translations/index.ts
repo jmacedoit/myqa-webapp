@@ -18,7 +18,12 @@ const translations = {
       },
       questionBar: {
         title: 'What do you need to know?',
-        placeholder: 'Write your question...'
+        placeholder: 'Write your question...',
+        emptyKnowledgeBaseLabel: 'Choose knowledge base'
+      },
+      footer: {
+        termsAndConditionsLink: 'Terms & conditions',
+        privacyPolicyLink: 'Privacy policy'
       },
       screens: {
         knowledgeBases: {
@@ -27,7 +32,8 @@ const translations = {
           noResources: 'No resources',
           editKnowledgeBase: 'Edit knowledge base',
           createKnowledgeBase: 'Add new knowledge base',
-          resourceDatePrefix: 'added'
+          createKnowledgeBaseButtonLabel: 'Add new',
+          resourceDatePrefix: 'Added'
         },
         signIn: {
           title: 'Sign in',
@@ -70,18 +76,25 @@ const translations = {
         },
         knowledgeBase: {
           resourcesTitle: 'Resources',
-          addResourceButton: 'Add resource'
+          noResourcesMessage: 'You have still not added any resources to this knowledge base.',
+          actionsTitle: 'Actions',
+          addResourceButton: 'Add resource',
+          editName: 'Change name',
+          deleteKnowledgeBase: 'Delete',
+          deleteKnowledgeBaseSuccessMessage: 'Knowledge base has been removed'
         },
         addResource: {
-          title: 'Add resource'
+          title: 'Add resource',
+          loadingMessge: 'Myqa is digesting your resource. This may take a few minutes.',
+          successMessage: 'Resource has been added'
         }
       },
       forms: {
-        knowledgeBase: {
+        updateKnowledgeBase: {
           name: {
             label: 'Name',
             requiredError: 'Name is required',
-            invalidError: 'Name is too short'
+            invalidError: 'Name is either too short or too long'
           },
           submitEditLabel: 'Save',
           submitAddLabel: 'Add'
