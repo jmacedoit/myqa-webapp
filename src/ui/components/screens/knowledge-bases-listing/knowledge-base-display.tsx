@@ -106,7 +106,7 @@ export default function KnowledgeBaseDisplay({ inGridOf, knowledgeBase }: { inGr
             <ImageSpacer />
 
             <TreeContainer>
-              <Tree src={staticUri(`assets/images/tree${getTree(knowledgeBase, 3)}.png`)} />
+              <Tree src={staticUri(`assets/images/tree${getTree(knowledgeBase)}.png`)} />
             </TreeContainer>
           </ImageContainer>
 

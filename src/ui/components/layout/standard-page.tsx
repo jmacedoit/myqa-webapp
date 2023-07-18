@@ -10,7 +10,6 @@ import React from 'react';
 import styled from 'styled-components';
 import useDimensions from 'react-cool-dimensions';
 
-
 /*
  * Styles.
  */

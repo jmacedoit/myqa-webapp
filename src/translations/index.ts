@@ -12,20 +12,63 @@ import { propertiesLeaves } from 'src/utils/types';
 const translations = {
   en: {
     translation: {
-      title: 'Myqa. Chat with your data.',
+      languages: {
+        en: 'English',
+        'pt-PT': 'Portuguese',
+        'pt-BR': 'Portuguese (Brazil)',
+        fr: 'French',
+        es: 'Spanish',
+        de: 'German',
+        it: 'Italian'
+      },
+      title: 'Myqa. Get answers out of your data.',
       menu: {
         greetingPrefix: 'Hey there, '
       },
       questionBar: {
         title: 'What do you need to know?',
-        placeholder: 'Write your question...',
-        emptyKnowledgeBaseLabel: 'Choose knowledge base'
+        placeholder: 'Ask your question...',
+        emptyKnowledgeBaseLabel: 'Choose knowledge base',
+        questionSettingsTitle: 'Question settings',
+        wisdomLevel: {
+          label: 'Wisdom (answer quality)',
+          marks: {
+            medium: 'Medium',
+            high: 'High',
+            veryHigh: 'Very high'
+          }
+        },
+        language: {
+          label: 'Answer language',
+          inferredOptionLabel: 'Auto'
+        },
+        settingsState: {
+          wisdomLevelLabel: 'Wisdom',
+          languageLabel: 'Language',
+          autoLanguage: 'Auto'
+        }
       },
       footer: {
         termsAndConditionsLink: 'Terms & conditions',
         privacyPolicyLink: 'Privacy policy'
       },
+      chatSessionNavigator: {
+        emptyChatLabel: 'Empty chat',
+        historyButton: 'Chat history'
+      },
       screens: {
+        menu: {
+          navigation: {
+            account: 'Account',
+            knowledgeBases: 'Knowledge bases',
+            logout: 'Logout',
+            qaChats: 'Q&A chats'
+          },
+          logoutSuccessMessage: 'You have been logged out'
+        },
+        account: {
+          title: 'Account'
+        },
         knowledgeBases: {
           title: 'Knowledge Bases',
           resourcesCountSufix: 'resources',
@@ -86,7 +129,15 @@ const translations = {
         addResource: {
           title: 'Add resource',
           loadingMessge: 'Myqa is digesting your resource. This may take a few minutes.',
-          successMessage: 'Resource has been added'
+          successMessage: 'Resource has been added',
+          errorMessage: 'There was an error adding your resource. Please try again later.'
+        },
+        sources: {
+          title: 'Aswer sources'
+        },
+        chatSessions: {
+          title: 'Previous chats',
+          lastUpdatePrefix: 'Last message at'
         }
       },
       forms: {
@@ -101,6 +152,7 @@ const translations = {
         },
         signIn: {
           submitLabel: 'Sign in',
+          signInSuccessMessage: 'You have been signed in',
           operationErrors: {
             wrongCredentials: 'Email not registered or wrong password'
           }

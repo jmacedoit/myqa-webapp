@@ -67,6 +67,7 @@
       }
     ],
     "max-params": "off",
-    "react/jsx-curly-brace-presence": "off"
+    "react/jsx-curly-brace-presence": "off",
+    "react-hooks/exhaustive-deps": "off"
   }
 }

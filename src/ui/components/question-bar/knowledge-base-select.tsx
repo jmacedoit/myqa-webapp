@@ -80,7 +80,7 @@ const KnowledgeBaseOption = styledMaterial(Button)`
   justify-content: flex-start;
 
   &:hover {
-    background: ${palette.mildGreen};
+    background: ${palette.oliveGreenDark};
   }
 `;
 
@@ -114,7 +114,7 @@ function KnowledgeBaseSelect({ ...props }: InputProps) {
         {selectedOption?.label && (
           <div style={{ paddingLeft: `${units(1)}px` }}>
             <TreeBackground>
-              <Tree src={staticUri(`assets/images/tree${getTreeById(selectedOption.value, 3)}-mini.png`)} />
+              <Tree src={staticUri(`assets/images/tree${getTreeById(selectedOption.value)}-mini.png`)} />
             </TreeBackground>
           </div>
         )}
@@ -153,14 +153,14 @@ function KnowledgeBaseSelect({ ...props }: InputProps) {
             >
               <div style={{ paddingRight: `${units(2)}px` }}>
                 <TreeBackground>
-                  <Tree src={staticUri(`assets/images/tree${getTreeById(option.value, 3)}-mini.png`)} />
+                  <Tree src={staticUri(`assets/images/tree${getTreeById(option.value)}-mini.png`)} />
                 </TreeBackground>
               </div>
 
               <div style={{ flex: 1 }}>
-                <Type.SmallStrong style={{ margin: 0 }}>
+                <Type.ParagraphSmall style={{ margin: 0 }}>
                   {option.label}
-                </Type.SmallStrong>
+                </Type.ParagraphSmall>
               </div>
             </KnowledgeBaseOption>
           );

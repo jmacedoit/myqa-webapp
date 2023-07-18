@@ -15,7 +15,9 @@ export const palette = {
   darkGreen: '#44776E',
   extraDarkGreen: '#2B4547',
   neonGreen: '#83DEB3',
+  lightNeonGreen: '#C1F7D5',
   lightBlue: '#9DD2FF',
+  lightPurple: '#91a1ff',
   purple: '#6855E2',
   orange: '#F9775F',
   yellow: '#FFD97D'

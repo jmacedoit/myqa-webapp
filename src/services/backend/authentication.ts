@@ -21,6 +21,12 @@ export async function authenticate(credentials: { email: string, password: strin
   });
 }
 
+export async function logout() {
+  await easyFetch(backendUri(endpoints.authentication), {
+    method: 'DELETE'
+  });
+}
+
 export async function getAuthenticatedUser() {
   return await easyFetch<AuthenticatedUser>(backendUri(endpoints.authenticatedUser)) as AuthenticatedUser;
 }

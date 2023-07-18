@@ -20,7 +20,7 @@ import styled from 'styled-components';
  */
 
 const Container = styled.div`
-  padding: ${units(2)}px ${units(4)}px;
+  padding: ${units(3)}px ${units(4)}px;
   color: ${palette.neonGreen};
   display: flex;
   flex-direction: column;

@@ -79,6 +79,11 @@ function SignIn() {
   const authentication = useMutation(async (data: SignInData) => {
     try {
       await authenticate(data);
+
+      dispatch(addNotification({
+        message: t(translationKeys.forms.signIn.signInSuccessMessage),
+        type: 'success'
+      }));
     } catch (error) {
       if (error?.status === 401) {
         dispatch(addNotification({

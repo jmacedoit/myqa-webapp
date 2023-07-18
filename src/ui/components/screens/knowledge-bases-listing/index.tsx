@@ -6,13 +6,16 @@
 import { CircularProgress } from '@mui/material';
 import { Col, Row, useScreenClass } from 'react-grid-system';
 import { StandardContentTitle } from 'src/ui/components/layout/standard-content-title';
+import { WisdomLevel } from 'src/types/answer';
 import { getKnowledgeBases } from 'src/services/backend/knowledge-bases';
 import { halfSpacing } from './knowledge-base-container';
+import { routes } from 'src/ui/routes';
 import { selectActiveOrganizationKnowledgeBases, setKnowledgeBasesAction } from 'src/state/slices/data';
 import { translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from 'src/ui/hooks/redux';
 import { useAuthenticationHandler } from 'src/ui/hooks/authentication';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import KnowledgeBaseAdder from './knowledge-base-adder';
@@ -40,6 +43,7 @@ function KnowledgeBasesListingScreen() {
   const { handleAuthenticatedRequest } = useAuthenticationHandler();
   const dispatch = useAppDispatch();
   const knowledgeBases = useAppSelector(selectActiveOrganizationKnowledgeBases);
+  const navigate = useNavigate();
   const { isLoading } = useQuery('knowledgeBases', async () => {
     const knowledgeBases = await handleAuthenticatedRequest(() => getKnowledgeBases());
 
@@ -70,6 +74,16 @@ function KnowledgeBasesListingScreen() {
         <Row>
           <Col xs={12}>
             <QuestionBar
+              handleSubmit={(question: string, knowledgeBaseId: string, language: string | undefined, wisdomLevel: WisdomLevel) => {
+                navigate(routes.answers, {
+                  state: {
+                    question,
+                    knowledgeBaseId,
+                    language,
+                    wisdomLevel
+                  }
+                });
+              }}
               titled
               topAligned
             />

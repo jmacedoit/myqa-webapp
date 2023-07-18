@@ -85,6 +85,16 @@ export const H5 = styled.h5`
   margin-top: 0;
 `;
 
+export const ParagraphSmall = styled.p`
+  font-family: 'Moderat', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: ${16 / defaultRootFontSizePx}rem;
+  line-height: 1.3333;
+  margin-bottom: ${units(2)}px;
+  margin-top: 0;
+`;
+
 export const Paragraph = styled.p`
   font-family: 'Moderat', sans-serif;
   font-style: normal;
@@ -143,6 +153,7 @@ export default {
   H3,
   H4,
   H5,
+  ParagraphSmall,
   Paragraph,
   ParagraphLarge,
   Small,
