@@ -30,5 +30,8 @@ module.exports = {
   },
   routing: {
     appBasename: 'ROUTING_APP_BASENAME'
+  },
+  recaptcha: {
+    key: 'RECAPTCHA_KEY'
   }
 };

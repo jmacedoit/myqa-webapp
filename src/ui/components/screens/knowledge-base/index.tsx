@@ -19,6 +19,7 @@ import {
 } from 'src/state/slices/data';
 
 import { KnowledgeBaseUpdater } from './knowledge-base-updater';
+import { WisdomLevel } from 'src/types/answer';
 import { addNotification } from 'src/state/slices/ui';
 import { deleteKnowledgeBaseResource, getKnowledgeBaseResources } from 'src/services/backend/resources';
 import { getTree } from 'src/ui/utils/trees';
@@ -192,12 +193,23 @@ function KnowledgeBaseScreen() {
         <Row>
           <Col xs={12}>
             <QuestionBar
+              defaultKnowledgeBaseId={knowledgeBaseId}
+              handleSubmit={(question: string, knowledgeBaseId: string, language: string | undefined, wisdomLevel: WisdomLevel) => {
+                navigate(routes.answers, {
+                  state: {
+                    question,
+                    knowledgeBaseId,
+                    language,
+                    wisdomLevel
+                  }
+                });
+              }}
               titled
               topAligned
             />
 
             <TitleContainer>
-              {!!knowledgeBase && (<Tree src={staticUri(`assets/images/tree${getTree(knowledgeBase, 3)}.png`)} />)}
+              {!!knowledgeBase && (<Tree src={staticUri(`assets/images/tree${getTree(knowledgeBase)}.png`)} />)}
 
               <StandardContentTitle>
                 {knowledgeBase?.name}

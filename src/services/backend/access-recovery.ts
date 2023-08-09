@@ -20,7 +20,7 @@ export async function requestPasswordRecovery(email: string) {
   });
 }
 
-export async function resetPassword(passwordResetToken: string, password: string) {
+export async function resetPassword(passwordResetToken: string | null, password: string) {
   return await easyFetch(backendUri(endpoints.passwordReset), {
     method: 'POST',
     body: JSON.stringify({

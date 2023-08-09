@@ -26,10 +26,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MainButton from 'src/ui/components/buttons/main-button';
 import QuickActionPage from 'src/ui/components/layout/quick-action-page';
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import TextField from 'src/ui/components/fields/text-field';
 import Type from 'src/ui/styles/type';
 import UnderlinedButton from 'src/ui/components/buttons/underlined-button';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 /*
  * Sign in schema.
@@ -76,10 +77,38 @@ function SignIn() {
   const navigate = useNavigate();
   const signUpHref = useHref(routes.signUp);
   const formRef = useRef<any>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const handleRecaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) {
+      console.log('Execute recaptcha not yet available');
+
+      return;
+    }
+
+    const token = await executeRecaptcha('SIGN_IN');
+
+    return token;
+  }, [executeRecaptcha]);
+
   const authentication = useMutation(async (data: SignInData) => {
     try {
-      await authenticate(data);
+      const recaptchaToken = await handleRecaptchaVerify();
+
+      if (!recaptchaToken) {
+        console.log('Recaptcha token not available');
+
+        throw new Error('Recaptcha token not available');
+      }
+
+      await authenticate(data, recaptchaToken);
+
+      dispatch(addNotification({
+        message: t(translationKeys.forms.signIn.signInSuccessMessage),
+        type: 'success'
+      }));
     } catch (error) {
+      console.log(error);
+
       if (error?.status === 401) {
         dispatch(addNotification({
           message: t(translationKeys.forms.signIn.operationErrors.wrongCredentials),

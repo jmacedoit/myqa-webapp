@@ -4,53 +4,56 @@
  */
 
 import 'src/ui/i18n';
-import { Alert, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Slide, Snackbar, SwipeableDrawer } from '@mui/material';
-import { FromSchema } from 'json-schema-to-ts';
+import { Alert, Slide, Snackbar } from '@mui/material';
 import { GlobalStyle } from 'src/ui/styles/global';
 import { Helmet } from 'react-helmet';
-import { JSONSchemaType } from 'ajv';
 import { MenuRounded } from '@mui/icons-material';
 import { Normalize } from 'styled-normalize';
-import { Organization } from 'src/types/organizations';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
 import { Provider as ReduxProvider } from 'react-redux';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { ScreenClassProvider, setConfiguration } from 'react-grid-system';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { createDefaultValidator } from 'src/ui/ajv';
+import { ThemeProvider, createTheme, styled as styledMaterial } from '@mui/material/styles';
 import { gutterSize, units } from 'src/ui/styles/dimensions';
-import { matchPath } from 'react-router';
+import { logOutUser, selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { removeNotification, selectActiveOrganizationId, selectNotifications, setActiveOrganizationId } from 'src/state/slices/ui';
 import { routes } from 'src/ui/routes';
-import { selectAuthenticatedUser } from 'src/state/slices/authenticated-user';
 import { selectOrganizations } from 'src/state/slices/data';
 import { store } from 'src/state/store';
 import { translationKeys } from 'src/translations';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { useTranslation } from 'react-i18next';
-import AnswerScreen from './screens/answer';
-import JSONSchemaBridge from 'uniforms-bridge-json-schema';
-import KnowledgeBaseScreen from './screens/knowledge-base';
-import KnowledgeBasesListingScreen from './screens/knowledge-bases-listing';
-import ProtectedRoute from './protected-route';
+import AnswerScreen from 'src/ui/components/screens/answers';
+import KnowledgeBaseScreen from 'src/ui/components/screens/knowledge-base';
+import KnowledgeBasesListingScreen from 'src/ui/components/screens/knowledge-bases-listing';
+import ProtectedRoute from 'src/ui/components/protected-route';
 import React, { useCallback, useEffect, useState } from 'react';
-import SignIn from './screens/sign-in';
-import Styleguide from './screens/styleguide';
-import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
+import SignIn from 'src/ui/components/screens/sign-in';
+import Styleguide from 'src/ui/components/screens/styleguide';
 import breakpoints from 'src/ui/styles/breakpoints';
 import colors, { palette } from 'src/ui/styles/colors';
 import styled from 'styled-components';
 // eslint-disable-next-line sort-imports-es6-autofix/sort-imports-es6
-import { AutoField, AutoForm } from 'uniforms-mui';
 import { NotificationMessage } from 'src/types/notification';
-import EmailVerification from './screens/email-verification';
-import RecoverPassword from './screens/recover-password';
-import RecoverPasswordEmailSent from './screens/recover-password-email-sent';
-import ResetPassword from './screens/reset-password';
-import ResetPasswordSuccess from './screens/reset-password-success';
-import SignUp from './screens/sign-up';
-import SignUpSuccess from './screens/sign-up-success';
-import VerifyEmail from './screens/verify-email';
+// eslint-disable-next-line no-duplicate-imports
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import { logout } from 'src/services/backend/authentication';
+import { staticUri } from 'src/utils/environment';
+import { useAuthenticationHandler } from 'src/ui/hooks/authentication';
+import Account from 'src/ui/components/screens/account';
+import ButtonBase from 'src/ui/components/buttons/button-base';
+import EmailVerification from 'src/ui/components/screens/email-verification';
+import LandingPage from 'src/ui/components/screens/landing-page';
+import Menu from './menu';
+import RecoverPassword from 'src/ui/components/screens/recover-password';
+import RecoverPasswordEmailSent from 'src/ui/components/screens/recover-password-email-sent';
+import ResetPassword from 'src/ui/components/screens/reset-password';
+import ResetPasswordSuccess from 'src/ui/components/screens/reset-password-success';
+import SignUp from 'src/ui/components/screens/sign-up';
+import SignUpSuccess from 'src/ui/components/screens/sign-up-success';
+import VerifyEmail from 'src/ui/components/screens/verify-email';
+import color from 'color';
+import config from 'src/config';
 
 /*
  * Setup tanstack react query client.
@@ -160,37 +163,23 @@ const Wrapper = styled.div`
   min-height: 100vh;
 `;
 
-const MenuContainer = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-width: 240px;
+const MenuButton = styledMaterial(ButtonBase)`
+  background-color: ${palette.lightPurple};
+  border-radius: 50%;
+  box-shadow: 0px 0px 7px -1px #101E1A77;
+  color: ${color(palette.lightPurple).darken(0.7).hex()};
+  height: ${units(5)}px;
+  padding: ${units(1)}px;
+  position: fixed;
+  width: ${units(5)}px;
+  z-index: 1000;
+  top: ${units(1)}px;
+  left: ${units(1)}px;
+
+  &:hover {
+    background-color: ${color(palette.lightPurple).darken(0.05).hex()};
+  }
 `;
-
-/*
- * Organization selection schema.
- */
-
-function createOrganizationSelectionSchema(t: (key: string) => string, organizations: Organization[]) {
-  return {
-    type: 'object',
-    properties: {
-      organization: {
-        type: 'string',
-        options: [
-          ...organizations.map(organization => ({
-            label: organization.name,
-            value: organization.id
-          }))
-        ]
-      }
-    },
-    required: ['organization'],
-    additionalProperties: false
-  } as const;
-}
-
-type OrganizationSelectionData = FromSchema<ReturnType<typeof createOrganizationSelectionSchema>>;
 
 /*
  * Export AppCore.
@@ -205,14 +194,11 @@ export function AppCore() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [previousTopNotification, setPreviousTopNotification] = useState<NotificationMessage>();
   const { t } = useTranslation();
-  const location = useLocation();
   const navigate = useNavigate();
   const handleOpenMenu = useCallback(() => setMenuOpen(true), []);
   const handleCloseMenu = useCallback(() => setMenuOpen(false), []);
   const dispatch = useAppDispatch();
-  const questionSchema = createOrganizationSelectionSchema(t, organizations);
-  const schemaValidator = createDefaultValidator(questionSchema as JSONSchemaType<OrganizationSelectionData>);
-  const bridge = new JSONSchemaBridge(questionSchema, schemaValidator);
+  const { handleAuthenticatedRequest } = useAuthenticationHandler();
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -232,6 +218,12 @@ export function AppCore() {
       }, 1000);
     }
   }, [notifications]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const logoutExecution = useMutation('logout', async () => {
+    await handleAuthenticatedRequest(() => logout());
+
+    dispatch(logOutUser());
+  });
 
   return (
     <div>
@@ -266,6 +258,31 @@ export function AppCore() {
           rel='stylesheet'
         />
 
+        <link
+          href={staticUri('assets/images/favicon/apple-touch-icon.png')}
+          rel='apple-touch-icon'
+          sizes='180x180'
+        />
+
+        <link
+          href={staticUri('assets/images/favicon/favicon-32x32.png')}
+          rel='icon'
+          sizes='32x32'
+          type='image/png'
+        />
+
+        <link
+          href={staticUri('assets/images/favicon/favicon-16x16.png')}
+          rel='icon'
+          sizes='16x16'
+          type='image/png'
+        />
+
+        <link
+          href={staticUri('assets/images/favicon/site.webmanifest')}
+          rel='manifest'
+        />
+
         <meta
           content='width=device-width,initial-scale=1'
           name='viewport'
@@ -292,67 +309,27 @@ export function AppCore() {
         </Alert>
       </Snackbar>
 
-      <SwipeableDrawer
-        anchor='left'
+      <Menu
+        activeOrganizationId={activeOrganizationId}
+        onChangeOrganization={organizationId => {
+          dispatch(setActiveOrganizationId(organizationId));
+
+          navigate(routes.knowledgeBasesListing);
+        }}
         onClose={handleCloseMenu}
+        onLogout={async () => { await logoutExecution.mutateAsync(); }}
         onOpen={handleOpenMenu}
         open={menuOpen}
-      >
-        <MenuContainer>
-          {
-            authenticatedUser && (
-              <div style={{ padding: units(2) }}>
-                {t(translationKeys.menu.greetingPrefix)}
-
-                <b>
-                  {authenticatedUser?.displayName}
-                </b>
-              </div>
-            )
-          }
-
-          <div style={{ flex: 1, justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
-            <List>
-              <ListItemButton
-                key={routes.knowledgeBasesListing}
-                onClick={() => navigate(routes.knowledgeBasesListing)}
-                selected={!!matchPath(location.pathname, routes.knowledgeBasesListing)}
-              >
-                <ListItemIcon>
-                  <WidgetsRoundedIcon />
-                </ListItemIcon>
-
-                <ListItemText primary={t(translationKeys.screens.knowledgeBases.title)} />
-              </ListItemButton>
-            </List>
-          </div>
-
-          <div style={{ padding: units(2) }}>
-            <AutoForm
-              autosave
-              model={{ organization: activeOrganizationId as string }}
-              onSubmit={(data: OrganizationSelectionData) => {
-                dispatch(setActiveOrganizationId(data.organization));
-              }}
-              schema={bridge}
-            >
-              <AutoField
-                initialValue={activeOrganizationId}
-                name={'organization'}
-              />
-            </AutoForm>
-          </div>
-        </MenuContainer>
-      </SwipeableDrawer>
+        organizations={organizations}
+        user={authenticatedUser}
+      />
 
       <Wrapper>
-        <IconButton
-          onClick={handleOpenMenu}
-          size='large'
-          sx={{ position: 'absolute' }}
-        >
-          <MenuRounded />
-        </IconButton>
+        {authenticatedUser && (
+          <MenuButton onClick={handleOpenMenu}>
+            <MenuRounded sx={{ fontSize: '1.4rem' }} />
+          </MenuButton>
+        )}
 
         <React.StrictMode>
           <Routes>
@@ -363,19 +340,35 @@ export function AppCore() {
             />
 
             <Route
-              element={<SignIn />}
+              element={(
+                <GoogleReCaptchaProvider
+                  reCaptchaKey={config.recaptcha.key}
+                  useEnterprise
+                >
+                  <SignIn />
+                </GoogleReCaptchaProvider>
+              )}
               key={routes.signIn}
               path={routes.signIn}
             />
 
             <Route
-              element={<SignUp />}
+              element={(
+                <GoogleReCaptchaProvider
+                  reCaptchaKey={config.recaptcha.key}
+                  useEnterprise
+                >
+                  <SignUp />
+                </GoogleReCaptchaProvider>
+              )}
               key={routes.signUp}
               path={routes.signUp}
             />
 
             <Route
-              element={<SignIn />}
+              element={(
+                <LandingPage />
+              )}
               key={routes.home}
               path={routes.home}
             />
@@ -424,6 +417,12 @@ export function AppCore() {
 
             <Route element={<ProtectedRoute />}>
               <Route
+                element={<Account />}
+                key={routes.account}
+                path={routes.account}
+              />
+
+              <Route
                 element={<KnowledgeBaseScreen />}
                 key={routes.knowledgeBase}
                 path={routes.knowledgeBase}
@@ -437,8 +436,8 @@ export function AppCore() {
 
               <Route
                 element={<AnswerScreen />}
-                key={routes.answer}
-                path={routes.answer}
+                key={routes.answers}
+                path={routes.answers}
               />
             </Route>
           </Routes>
@@ -465,3 +464,4 @@ export default function App() {
     </ReduxProvider>
   );
 }
+

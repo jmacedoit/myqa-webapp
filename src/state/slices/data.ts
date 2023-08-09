@@ -3,11 +3,14 @@
  * Module dependencies.
  */
 
+import { AnswerSourceData } from 'src/types/answer';
+import { ChatSession, Message } from 'src/types/chat';
 import { KnowledgeBase, KnowledgeBasePatch } from 'src/types/knowledge-bases';
 import { Organization } from 'src/types/organizations';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Resource } from 'src/types/resources';
 import { RootState } from 'src/state/store';
+import { sortBy } from 'lodash';
 
 /*
  * Data slice.
@@ -20,6 +23,12 @@ export const dataSlice = createSlice({
     knowledgeBases: [] as KnowledgeBase[],
     knowledgeBaseResources: {} as {
       [knowledgeBaseId: string]: Resource[]
+    },
+    chatSessions: {} as {
+      [chatSessionId: string]: ChatSession
+    },
+    answersSourcesData: {} as {
+      [messageId: string]: AnswerSourceData[]
     }
   },
   reducers: {
@@ -54,6 +63,29 @@ export const dataSlice = createSlice({
     },
     deleteKnowledgeBaseAction: (state, action: PayloadAction<string>) => {
       state.knowledgeBases = state.knowledgeBases.filter(knowledgeBase => knowledgeBase.id !== action.payload);
+    },
+    createChatSessionAction: (state, action: PayloadAction<ChatSession>) => {
+      state.chatSessions[action.payload.id] = action.payload;
+    },
+    addChatSessionsAction: (state, action: PayloadAction<ChatSession[]>) => {
+      action.payload.forEach(chatSession => {
+        state.chatSessions[chatSession.id] = chatSession;
+      });
+    },
+    deleteChatSessionAction: (state, action: PayloadAction<string>) => {
+      delete state.chatSessions[action.payload];
+    },
+    addMessageToChatSessionAction: (state, action: PayloadAction<{ chatSessionId: string, message: Message }>) => {
+      const chatSession = state.chatSessions[action.payload.chatSessionId];
+
+      if (chatSession) {
+        chatSession.chatMessages = chatSession.chatMessages || [];
+
+        chatSession.chatMessages.push(action.payload.message);
+      }
+    },
+    setAnswerSourcesDataAction: (state, action: PayloadAction<{ messageId: string, answerSourcesData: AnswerSourceData[] }>) => {
+      state.answersSourcesData[action.payload.messageId] = action.payload.answerSourcesData;
     }
   }
 });
@@ -63,13 +95,18 @@ export const dataSlice = createSlice({
  */
 
 export const {
+  addChatSessionsAction,
+  addMessageToChatSessionAction,
+  createChatSessionAction,
   createKnowledgeBaseAction,
-  createKnowledgeBaseResourceAction: createKnowledgeBaseResourceAction,
-  deleteKnowledgeBaseAction: deleteKnowledgeBaseAction,
-  deleteKnowledgeBaseResourceAction: deleteKnowledgeBaseResourceAction,
-  setKnowledgeBaseResourcesAction: setKnowledgeBaseResourcesAction,
-  setKnowledgeBasesAction: setKnowledgeBasesAction,
-  setOrganizationsAction: setOrganizationsAction,
+  createKnowledgeBaseResourceAction,
+  deleteChatSessionAction,
+  deleteKnowledgeBaseAction,
+  deleteKnowledgeBaseResourceAction,
+  setAnswerSourcesDataAction,
+  setKnowledgeBaseResourcesAction,
+  setKnowledgeBasesAction,
+  setOrganizationsAction,
   updateKnowledgeBaseAction
 } = dataSlice.actions;
 
@@ -79,6 +116,8 @@ export const selectActiveOrganizationKnowledgeBases = (state: RootState) => {
 };
 export const selectOrganizations = (state: RootState) => state.data.organizations;
 export const selectResources = (knowledgeBaseId: string) => (state: RootState) => state.data.knowledgeBaseResources[knowledgeBaseId];
+export const selectChatSession = (chatSessionId: string) => (state: RootState) => state.data.chatSessions[chatSessionId];
+export const selectChatSessions = (state: RootState) => sortBy(Object.values(state.data.chatSessions), 'updatedAt').reverse();
 
 export default dataSlice.reducer;
 

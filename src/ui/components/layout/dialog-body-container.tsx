@@ -13,7 +13,7 @@ import styled from 'styled-components';
 
 export const DialogBodyContainer = styled.div`
   box-shadow: 0px 0px 75px 0px rgba(33,47,27,0.10);
-  padding: ${units(2)}px;
+  padding: ${units(3)}px;
   border-radius: ${units(2)}px;
   background-color: ${palette.oliveGreen};
   max-height: 80vh;

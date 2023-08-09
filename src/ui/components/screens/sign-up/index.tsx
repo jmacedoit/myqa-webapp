@@ -18,12 +18,13 @@ import { routes } from 'src/ui/routes';
 import { translationKeys as translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch } from 'src/ui/hooks/redux';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import MainButton from 'src/ui/components/buttons/main-button';
 import PasswordChecks from 'src/ui/components/password-checks';
 import QuickActionPage from 'src/ui/components/layout/quick-action-page';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import TextField from 'src/ui/components/fields/text-field';
 import Type from 'src/ui/styles/type';
 import UnderlinedButton from 'src/ui/components/buttons/underlined-button';
@@ -92,9 +93,30 @@ function SignUp() {
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const formRef = useRef<any>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const handleRecaptchaVerify = useCallback(async () => {
+    if (!executeRecaptcha) {
+      console.log('Execute recaptcha not yet available');
+
+      return;
+    }
+
+    const token = await executeRecaptcha('SIGN_UP');
+
+    return token;
+  }, [executeRecaptcha]);
+
   const userRegistration = useMutation(async (data: SignUpData) => {
     try {
-      await registerUser(data);
+      const recaptchaToken = await handleRecaptchaVerify();
+
+      if (!recaptchaToken) {
+        console.log('Recaptcha token not available');
+
+        throw new Error('Recaptcha token not available');
+      }
+
+      await registerUser(data, recaptchaToken);
 
       navigate(routes.signUpSuccess);
     } catch (error) {

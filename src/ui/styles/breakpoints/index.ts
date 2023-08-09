@@ -1,9 +1,15 @@
 
 /*
+ * Module dependencies.
+ */
+
+import { properties } from 'src/utils/types';
+
+/*
  * Export breakpoints.
  */
 
-export default {
+const breakpoints = {
   xs: 0,
   sm: 576,
   md: 768,
@@ -12,3 +18,7 @@ export default {
   xxl: 1600,
   xxxl: 1920
 };
+
+export default breakpoints;
+
+export const breakpointKeys = properties<typeof breakpoints>(breakpoints);

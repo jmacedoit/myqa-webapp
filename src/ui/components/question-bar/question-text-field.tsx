@@ -14,7 +14,10 @@ import styled from 'styled-components';
  * Types.
  */
 
-export type InputProps = FieldProps<string, {}>;
+export type InputProps = FieldProps<string, {
+  submit: () => void;
+  innerRef: React.RefObject<HTMLTextAreaElement>;
+}>;
 
 /*
  * Styles.
@@ -51,11 +54,21 @@ const StyledInput = styled(TextareaAutosize)`
  */
 
 function QuestionInput({ ...props }: InputProps) {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      props.submit();
+    }
+  };
+
   return (
     <StyledInput
       {...filterDOMProps(props)}
       onChange={event => props.onChange(event.target.value)}
+      onKeyDown={onKeyDown}
       placeholder={props.placeholder}
+      ref={props.innerRef}
     />
   );
 }

@@ -13,7 +13,11 @@ export const endpoints = {
   knowledgeBaseResources: '/knowledge-bases/:knowledgeBaseId/resources',
   knowledgeBaseResource: '/knowledge-bases/:knowledgeBaseId/resources/:resourceId',
   answerRequest: '/answer-request',
+  answerSourcesRetrieval: '/answer-sources-retrieval',
+  chatSession: '/chat-sessions/:chatSessionId',
+  chatSessions: '/chat-sessions',
   emailVerification: '/email-verification',
   passwordRecoveryRequest: '/password-recovery-request',
-  passwordReset: '/password-reset'
+  passwordReset: '/password-reset',
+  passwordChange: '/password-change'
 };

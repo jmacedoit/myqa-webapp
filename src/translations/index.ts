@@ -12,20 +12,95 @@ import { propertiesLeaves } from 'src/utils/types';
 const translations = {
   en: {
     translation: {
-      title: 'Myqa. Chat with your data.',
+      languages: {
+        en: 'English',
+        'pt-PT': 'Portuguese',
+        'pt-BR': 'Portuguese (Brazil)',
+        fr: 'French',
+        es: 'Spanish',
+        de: 'German',
+        it: 'Italian'
+      },
+      title: 'Myqa. Get answers out of your documents.',
       menu: {
         greetingPrefix: 'Hey there, '
       },
       questionBar: {
         title: 'What do you need to know?',
-        placeholder: 'Write your question...',
-        emptyKnowledgeBaseLabel: 'Choose knowledge base'
+        placeholder: 'Ask your question...',
+        emptyKnowledgeBaseLabel: 'Choose knowledge base',
+        questionSettingsTitle: 'Question settings',
+        wisdomLevel: {
+          label: 'Wisdom (answer quality)',
+          marks: {
+            medium: 'Medium',
+            high: 'High',
+            veryHigh: 'Very high'
+          }
+        },
+        language: {
+          label: 'Answer language',
+          inferredOptionLabel: 'Auto'
+        },
+        settingsState: {
+          wisdomLevelLabel: 'Wisdom',
+          languageLabel: 'Language',
+          autoLanguage: 'Auto'
+        }
       },
       footer: {
         termsAndConditionsLink: 'Terms & conditions',
         privacyPolicyLink: 'Privacy policy'
       },
+      chatSessionNavigator: {
+        emptyChatLabel: 'Empty chat',
+        historyButton: 'Chat history'
+      },
       screens: {
+        landingPage: {
+          hero: {
+            signInButton: 'Sign in',
+            titleHighlight: 'Get answers ',
+            titleRest: 'out of your documents',
+            yourDataEquationElement: 'your data',
+            elevatorPitch: 'Upload your documents and let the AI process them. \nThen just ask away and get the answers you\'re looking for.',
+            callToAction: 'Sign up now!'
+          },
+          howItWorks: {
+            title: 'How it works',
+            step1: {
+              title: 'Create a knowledge base',
+              description: 'A knowledge base groups related documents enabling the AI to search them collectively.'
+            },
+            step2: {
+              title: 'Upload your documents',
+              description: 'Upload the documents containing the information you want the AI to process into your knowledge base.'
+            },
+            step3: {
+              title: 'Ask questions, get answers',
+              description: 'Ask  all your questions. Get answers fast and easily!'
+            }
+          }
+        },
+        menu: {
+          navigation: {
+            account: 'Account',
+            knowledgeBases: 'Knowledge bases',
+            logout: 'Logout',
+            qaChats: 'Q&A chats'
+          },
+          logoutSuccessMessage: 'You have been logged out'
+        },
+        account: {
+          title: 'Account',
+          personalInformationTitle: 'Personal information',
+          securityTitle: 'Actions',
+          changePasswordLabel: 'Change password'
+        },
+        changePassword: {
+          title: 'Change password',
+          successMessage: 'Password has been changed'
+        },
         knowledgeBases: {
           title: 'Knowledge Bases',
           resourcesCountSufix: 'resources',
@@ -86,7 +161,15 @@ const translations = {
         addResource: {
           title: 'Add resource',
           loadingMessge: 'Myqa is digesting your resource. This may take a few minutes.',
-          successMessage: 'Resource has been added'
+          successMessage: 'Resource has been added',
+          errorMessage: 'There was an error adding your resource. Please try again later.'
+        },
+        sources: {
+          title: 'Aswer sources'
+        },
+        chatSessions: {
+          title: 'Previous chats',
+          lastUpdatePrefix: 'Last message at'
         }
       },
       forms: {
@@ -101,6 +184,7 @@ const translations = {
         },
         signIn: {
           submitLabel: 'Sign in',
+          signInSuccessMessage: 'You have been signed in',
           operationErrors: {
             wrongCredentials: 'Email not registered or wrong password'
           }
@@ -136,11 +220,34 @@ const translations = {
         resetPassword: {
           submitLabel: 'Reset password'
         },
+        changePassword: {
+          submitLabel: 'Update password',
+          oldPassword: {
+            label: 'Old password',
+            requiredError: 'Password is required'
+          },
+          newPassword: {
+            label: 'New password',
+            requiredError: 'Password is required',
+            patternError: 'Password must respect rules'
+          },
+          newPasswordRepetition: {
+            label: 'New password repetition',
+            requiredError: 'Password repetition is required',
+            nonMatchingError: 'Passwords are not equal'
+          },
+          operationErrors: {
+            wrongCredentials: 'The password is not correct'
+          }
+        },
         common: {
           email: {
             label: 'Email',
             requiredError: 'Email is required',
             invalidError: 'Write a valid email'
+          },
+          displayName: {
+            label: 'Display name'
           },
           password: {
             label: 'Password',

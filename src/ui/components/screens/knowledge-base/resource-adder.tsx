@@ -67,17 +67,26 @@ function ResourceAdder({ onResourceAdded }: { onResourceAdded: () => void }) {
       return;
     }
 
-    const addedResource = await addFileResourceToKnowledgeBase(knowledgeBaseId, resourceCreationData.file as unknown as File);
+    try {
+      const addedResource = await addFileResourceToKnowledgeBase(knowledgeBaseId, resourceCreationData.file as unknown as File);
 
-    dispatch(createKnowledgeBaseResourceAction({
-      knowledgeBaseId,
-      resource: addedResource
-    }));
+      dispatch(createKnowledgeBaseResourceAction({
+        knowledgeBaseId,
+        resource: addedResource
+      }));
 
-    dispatch(addNotification({
-      message: t(translationKeys.screens.addResource.successMessage),
-      type: 'success'
-    }));
+      dispatch(addNotification({
+        message: t(translationKeys.screens.addResource.successMessage),
+        type: 'success'
+      }));
+    } catch (error) {
+      dispatch(addNotification({
+        message: t(translationKeys.screens.addResource.errorMessage),
+        type: 'error'
+      }));
+
+      throw error;
+    }
   });
 
   const handleSubmit = async (model: ResourceCreationData) => {

@@ -3,13 +3,22 @@
  * Module dependencies.
  */
 
+import { palette } from 'src/ui/styles/colors';
 import ContentLoader from 'react-content-loader';
 import React from 'react';
+
+/*
+ * Types.
+ */
 
 interface Segment {
   width: number;
   separation: number;
 }
+
+/*
+ * Utils.
+ */
 
 function generateLineSegments(total: number, numberOfSegments: number, separation: number): Segment[] {
   let sum = total - (numberOfSegments - 1) * separation;
@@ -66,9 +75,9 @@ function AnswerLoader(props: any) {
 
   return (
     <ContentLoader
-      backgroundColor='#d9d9d9'
-      foregroundColor='#ecebeb'
-      viewBox='0 0 800 200'
+      backgroundColor={palette.oliveGreenDark}
+      foregroundColor={palette.oliveGreen}
+      viewBox='0 0 800 100'
       width={'100%'}
       {...props}
     >
