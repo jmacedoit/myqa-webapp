@@ -4,10 +4,10 @@
  */
 
 import { AutoField, AutoForm } from 'uniforms-mui';
+import { ErrorObject, JSONSchemaType } from 'ajv';
 import { FieldWrapper, StyledErrorField } from 'src/ui/components/fields/form-misc';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
-import { JSONSchemaType } from 'ajv';
 import { addNotification } from 'src/state/slices/ui';
 import { createDefaultValidator } from 'src/ui/ajv';
 import { properties } from 'src/utils/types';
@@ -36,6 +36,7 @@ const createResetPasswordSchema = (t: (key: string) => string) => ({
     password: {
       type: 'string',
       title: t(translationKeys.forms.common.password.label),
+      pattern: '^(?!^(.{0,7}|[^0-9]*|[^A-Z]*|[^a-z]*|[a-zA-Z0-9]*|.{24,})$).*$',
       component: TextField,
       showMaskPasswordControl: true
     },
@@ -99,7 +100,17 @@ function ResetPassword() {
   const token = queryParams.get('token');
 
   const resetPasswordSchema = createResetPasswordSchema(t);
-  const schemaValidator = createDefaultValidator(resetPasswordSchema as JSONSchemaType<ResetPasswordData>);
+  const schemaValidator = createDefaultValidator(resetPasswordSchema as JSONSchemaType<ResetPasswordData>, (error: ErrorObject) => {
+    if (error?.instancePath === '/password' && error?.keyword === 'pattern') {
+      return {
+        ...error,
+        message: t(translationKeys.forms.common.password.patternError)
+      };
+    }
+
+    return error;
+  });
+
   const bridge = new JSONSchemaBridge(resetPasswordSchema, schemaValidator);
 
   return (

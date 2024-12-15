@@ -12,12 +12,19 @@ import { endpoints } from './endpoints';
  * Authentication related methods.
  */
 
-export async function authenticate(credentials: { email: string, password: string }) {
+export async function authenticate(credentials: { email: string, password: string }, captchaToken: string) {
   await easyFetch(backendUri(endpoints.authentication), {
     method: 'POST',
     body: JSON.stringify({
-      ...credentials
+      ...credentials,
+      captchaToken
     })
+  });
+}
+
+export async function logout() {
+  await easyFetch(backendUri(endpoints.authentication), {
+    method: 'DELETE'
   });
 }
 

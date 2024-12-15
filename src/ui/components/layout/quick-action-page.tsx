@@ -6,23 +6,46 @@
 import { Col, Container, Row } from 'react-grid-system';
 import { palette } from 'src/ui/styles/colors';
 import { units } from 'src/ui/styles/dimensions';
+import Footer from 'src/ui/components/footer';
 import React from 'react';
+import breakpoints from 'src/ui/styles/breakpoints';
 import styled from 'styled-components';
+
 /*
  * Styles.
  */
 
 export const QuickActionPageWrapper = styled.div`
+  min-height: 100vh;
   background-color: ${palette.extraDarkGreen};
 `;
 
-const StyledColumn = styled(Col)`;
+const StyledCol = styled(Col)`;
   text-align: center;
+`;
+
+const StyledSpacerCol = styled(StyledCol)`
+  display: none;
+
+  @media (min-width: ${breakpoints.lg}px) {
+    display: initial;
+  }
+`;
+
+const StyledContainer = styled(Container)`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: center;
+`;
+
+const FillRow = styled(Row)`
+  align-items: center !important;
+  flex: 1 !important;
 `;
 
 export const QuickActionPageContentPositioner = styled.div`
   width: 100%;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,7 +53,7 @@ export const QuickActionPageContentPositioner = styled.div`
   padding-bottom: ${units(10)}px;
 `;
 
-const QuickActionPageContentContainer = styled.div`
+const ContentContainer = styled.div`
   width: 100%;
   border-radius: ${units(2)}px;
   background-color: ${palette.lightGreen};
@@ -46,22 +69,31 @@ const QuickActionPageContentContainer = styled.div`
 function QuickActionPage(props: { children: React.ReactNode }) {
   return (
     <QuickActionPageWrapper>
-      <Container>
-        <Row>
-          <StyledColumn lg={3} />
+      <StyledContainer>
+        <FillRow>
+          <StyledSpacerCol
+            lg={3}
+            xs={0}
+          />
 
-          <StyledColumn
+          <StyledCol
             lg={6}
             xs={12}
           >
             <QuickActionPageContentPositioner>
-              <QuickActionPageContentContainer>
+              <ContentContainer>
                 {props.children}
-              </QuickActionPageContentContainer>
+              </ContentContainer>
             </QuickActionPageContentPositioner>
-          </StyledColumn>
+          </StyledCol>
+        </FillRow>
+
+        <Row>
+          <Col xs={12}>
+            <Footer color={palette.mildGreenDark} />
+          </Col>
         </Row>
-      </Container>
+      </StyledContainer>
     </QuickActionPageWrapper>
   );
 }

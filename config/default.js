@@ -30,5 +30,8 @@ module.exports = {
   },
   routing: {
     appBasename: '/app'
+  },
+  recaptcha: {
+    key: null
   }
 }

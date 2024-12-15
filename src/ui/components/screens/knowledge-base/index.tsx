@@ -3,24 +3,44 @@
  * Module dependencies.
  */
 
-import { Button, CircularProgress, Dialog, IconButton, Paper } from '@mui/material';
-import { Col, Container, Row } from 'react-grid-system';
-import { Delete } from '@mui/icons-material';
+import { CircularProgress, Dialog, IconButton } from '@mui/material';
+import { Col, Row } from 'react-grid-system';
+import { DialogBodyContainer } from 'src/ui/components/layout/dialog-body-container';
+import { StandardContentContainer } from 'src/ui/components/layout/standard-content-container';
+import { StandardContentTitle } from 'src/ui/components/layout/standard-content-title';
+import { deleteKnowledgeBase, getKnowledgeBases } from 'src/services/backend/knowledge-bases';
+import {
+  deleteKnowledgeBaseAction,
+  deleteKnowledgeBaseResourceAction,
+  selectKnowledgeBases,
+  selectResources,
+  setKnowledgeBaseResourcesAction,
+  setKnowledgeBasesAction
+} from 'src/state/slices/data';
+
+import { KnowledgeBaseUpdater } from './knowledge-base-updater';
+import { WisdomLevel } from 'src/types/answer';
+import { addNotification } from 'src/state/slices/ui';
 import { deleteKnowledgeBaseResource, getKnowledgeBaseResources } from 'src/services/backend/resources';
-import { deleteKnowledgeBaseResourceAction as deleteKnowledgeBaseResourceAction, selectKnowledgeBases, selectResources, setKnowledgeBaseResourcesAction, setKnowledgeBasesAction } from 'src/state/slices/data';
-import { getKnowledgeBases } from 'src/services/backend/knowledge-bases';
-import { isNil } from 'lodash';
+import { getTree } from 'src/ui/utils/trees';
+import { isEmpty, isNil } from 'lodash';
+import { palette } from 'src/ui/styles/colors';
+import { routes } from 'src/ui/routes';
+import { staticUri } from 'src/utils/environment';
+import { styled as styledMaterial } from '@mui/material/styles';
 import { translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from 'src/ui/hooks/redux';
 import { useAuthenticationHandler } from 'src/ui/hooks/authentication';
 import { useMutation, useQuery } from 'react-query';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import QuestionBar from 'src/ui/components/question-bar';
 import React, { useState } from 'react';
 import ResourceAdder from './resource-adder';
-import Shapes from './shapes';
+import SimpleButton from 'src/ui/components/buttons/simple-button';
+import StandardPage from 'src/ui/components/layout/standard-page';
 import Type from 'src/ui/styles/type';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -38,14 +58,21 @@ dayjs.extend(utc);
  * Styles.
  */
 
-const StyledContainer = styled(Container)`
+const StyledStandardContentContainer = styled(StandardContentContainer)`
+  z-index: 10;
 `;
 
 const ResourcesContainer = styled.div`
+  margin-bottom: ${units(4)}px;
 `;
 
 const ResourceItem = styled.div`
+  align-items: center;
+  color: ${palette.extraDarkGreen};
+  background-color: ${palette.lightGreen};
+  border-radius: ${units(2)}px;
   display: flex;
+  margin-bottom: ${units(1)}px;
   padding: ${units(2)}px;
 `;
 
@@ -58,10 +85,24 @@ const ResourceInfo = styled.div`
 const ResourceActions = styled.div`
 `;
 
-const ImageContainer = styled.div`
-  position: relative;
-  width: 200px;
-  height: 200px;
+const TitleContainer = styled.div`
+  min-height: ${units(14)}px;
+  margin-top: ${units(-5)}px;
+  display: flex;
+  align-items: flex-end;
+  z-index: 1;
+`;
+
+const Tree = styled.img`
+  width: 120px;
+  height: 100%;
+  margin-bottom: ${units(-1)}px;
+  margin-right: ${units(-1.5)}px;
+  margin-left: ${units(-2)}px;
+`;
+
+const StyledSimpleButton = styledMaterial(SimpleButton)`
+  margin-right: ${units(1)}px;
 `;
 
 /*
@@ -71,12 +112,15 @@ const ImageContainer = styled.div`
 function KnowledgeBaseScreen() {
   const { t } = useTranslation();
   const { handleAuthenticatedRequest } = useAuthenticationHandler();
+  const navigate = useNavigate();
   const [addResourceDialogOpen, setAddResourceDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { knowledgeBaseId } = useParams();
+  const { knowledgeBaseId: knowledgeBaseIdFromParams } = useParams();
+  const knowledgeBaseId = knowledgeBaseIdFromParams ?? '';
   const knowledgeBase = useAppSelector(selectKnowledgeBases).find(knowledgeBase => knowledgeBase.id === knowledgeBaseId);
   const resources = useAppSelector(selectResources(knowledgeBaseId as string));
-  const { isLoading } = useQuery('knowledgeBaseResources', async () => {
+  const { isFetched, isLoading } = useQuery('knowledgeBaseResources', async () => {
     const getKnowledgeBasesPromise = handleAuthenticatedRequest(() => getKnowledgeBases());
     const resources = await handleAuthenticatedRequest(() => getKnowledgeBaseResources(knowledgeBaseId as string));
 
@@ -94,6 +138,45 @@ function KnowledgeBaseScreen() {
     dispatch(deleteKnowledgeBaseResourceAction(resourceRemovalData));
   });
 
+  const knowledgeBaseRemoval = useMutation('deleteKnowledgeBase', async (knowledgeBaseId: string) => {
+    await deleteKnowledgeBase(knowledgeBaseId);
+
+    dispatch(deleteKnowledgeBaseAction(knowledgeBaseId));
+
+    dispatch(addNotification({
+      message: t(translationKeys.screens.knowledgeBase.deleteKnowledgeBaseSuccessMessage),
+      type: 'success'
+    }));
+
+    navigate(routes.knowledgeBasesListing);
+  });
+
+  const handleOpenAddResourceDialog = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.stopPropagation();
+
+    setAddResourceDialogOpen(true);
+  };
+
+  const handleCloseAddResourceDialog = () => {
+    setAddResourceDialogOpen(false);
+  };
+
+  const handleOpenEditDialog = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.stopPropagation();
+
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+  };
+
+  const handleDeleteKnowledgeBase = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.stopPropagation();
+
+    await knowledgeBaseRemoval.mutateAsync(knowledgeBaseId);
+  };
+
   const handleDeleteResource = (resourceId: string) => async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation();
 
@@ -104,88 +187,135 @@ function KnowledgeBaseScreen() {
     await resourceRemoval.mutateAsync({ knowledgeBaseId, resourceId });
   };
 
-  const handleCloseAddResourceDialog = () => {
-    setAddResourceDialogOpen(false);
-  };
-
-  const handleOpeAddResourceDialog = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.stopPropagation();
-
-    setAddResourceDialogOpen(true);
-  };
-
   return (
     <>
-      <StyledContainer>
+      <StandardPage>
         <Row>
           <Col xs={12}>
-            <QuestionBar />
+            <QuestionBar
+              defaultKnowledgeBaseId={knowledgeBaseId}
+              handleSubmit={(question: string, knowledgeBaseId: string, language: string | undefined, wisdomLevel: WisdomLevel) => {
+                navigate(routes.answers, {
+                  state: {
+                    question,
+                    knowledgeBaseId,
+                    language,
+                    wisdomLevel
+                  }
+                });
+              }}
+              titled
+              topAligned
+            />
 
-            <Type.H3>
-              {knowledgeBase?.name}
-            </Type.H3>
+            <TitleContainer>
+              {!!knowledgeBase && (<Tree src={staticUri(`assets/images/tree${getTree(knowledgeBase)}.png`)} />)}
 
-            {
-              !isNil(knowledgeBase) && (
-                <ImageContainer>
-                  <Shapes
-                    knowledgeBaseId={knowledgeBase.id}
-                    numberOfShapes={3}
-                  />
-                </ImageContainer>
-              )
-            }
+              <StandardContentTitle>
+                {knowledgeBase?.name}
+              </StandardContentTitle>
+            </TitleContainer>
 
-            <Type.H4>
-              {t(translationKeys.screens.knowledgeBase.resourcesTitle)}
-            </Type.H4>
+            <StyledStandardContentContainer>
+              <Type.H4>
+                {t(translationKeys.screens.knowledgeBase.resourcesTitle)}
+              </Type.H4>
 
-            <ResourcesContainer>
-              {isLoading ?
-                <CircularProgress /> :
-                (
-                  <Paper>
-                    {(resources || []).map(resource => (
+              <ResourcesContainer>
+                <div style={{ marginBottom: units(2) }}>
+                  {isLoading ?
+                    <CircularProgress /> :
+                    (resources || []).map(resource => (
                       <ResourceItem key={resource.id}>
                         <ResourceInfo>
-                          <div>{resource.metadata.fileName}</div>
+                          <Type.Paragraph style={{ marginBottom: units(1) }}>
+                            {resource.metadata.fileName}
+                          </Type.Paragraph>
 
-                          <div>
-                            <Type.Small>{`  ${t(translationKeys.screens.knowledgeBases.resourceDatePrefix)} ${dayjs(resource.createdAt).local().fromNow()}`} </Type.Small>
-                          </div>
+                          <Type.Small style={{ marginBottom: 0 }}>
+                            {`${t(translationKeys.screens.knowledgeBases.resourceDatePrefix)} `}
+
+                            <b>
+                              {dayjs(resource.createdAt).local().fromNow()}
+                            </b>
+                          </Type.Small>
                         </ResourceInfo>
 
                         <ResourceActions>
-                          <IconButton onClick={handleDeleteResource(resource.id)}>
-                            {resourceRemoval.isLoading ? <CircularProgress size={25} /> : <Delete />}
+                          <IconButton
+                            onClick={handleDeleteResource(resource.id)}
+                            sx={{ color: 'inherit' }}
+                          >
+                            {resourceRemoval.isLoading ? <CircularProgress size={25} /> : <DeleteOutlineIcon />}
                           </IconButton>
                         </ResourceActions>
                       </ResourceItem>
                     ))}
-                  </Paper>
-                )
-              }
-            </ResourcesContainer>
+                </div>
 
-            <div style={{ marginTop: units(2) }}>
-              <Button
-                onClick={handleOpeAddResourceDialog}
-                variant='contained'
-              >
-                {t(translationKeys.screens.knowledgeBase.addResourceButton)}
-              </Button>
-            </div>
+                {isFetched && isEmpty(resources) && (
+                  <Type.Paragraph>
+                    {t(translationKeys.screens.knowledgeBase.noResourcesMessage)}
+                  </Type.Paragraph>
+                )}
+
+                <div>
+                  <StyledSimpleButton
+                    filled
+                    onClick={handleOpenAddResourceDialog}
+                  >
+                    {t(translationKeys.screens.knowledgeBase.addResourceButton)}
+                  </StyledSimpleButton>
+                </div>
+              </ResourcesContainer>
+
+              <Type.H4>
+                {t(translationKeys.screens.knowledgeBase.actionsTitle)}
+              </Type.H4>
+
+              <div>
+                <StyledSimpleButton
+                  filled
+                  onClick={handleOpenEditDialog}
+                >
+                  {t(translationKeys.screens.knowledgeBase.editName)}
+                </StyledSimpleButton>
+
+                <StyledSimpleButton
+                  filled
+                  loading={knowledgeBaseRemoval.isLoading}
+                  onClick={handleDeleteKnowledgeBase}
+                >
+                  {t(translationKeys.screens.knowledgeBase.deleteKnowledgeBase)}
+                </StyledSimpleButton>
+              </div>
+
+            </StyledStandardContentContainer>
           </Col>
         </Row>
-      </StyledContainer>
+      </StandardPage>
 
       <Dialog
+        PaperComponent={DialogBodyContainer}
         fullWidth
-        maxWidth={'lg'}
+        maxWidth={'xs'}
         onClose={handleCloseAddResourceDialog}
         open={addResourceDialogOpen}
       >
         <ResourceAdder onResourceAdded={handleCloseAddResourceDialog} />
+      </Dialog>
+
+      <Dialog
+        PaperComponent={DialogBodyContainer}
+        fullWidth
+        maxWidth={'xs'}
+        onClose={handleCloseEditDialog}
+        open={editDialogOpen}
+      >
+        <KnowledgeBaseUpdater
+          knowledgeBaseId={knowledgeBaseId}
+          onKnowledgeBaseUpdated={handleCloseEditDialog}
+        />
       </Dialog>
     </>
   );

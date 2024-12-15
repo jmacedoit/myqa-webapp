@@ -31,6 +31,9 @@ function validateAndTypeConfig(rawConfig: any) {
     },
     routing: {
       appBasename: rawConfig.routing.appBasename as string
+    },
+    recaptcha: {
+      key: rawConfig.recaptcha.key as string
     }
   };
 }

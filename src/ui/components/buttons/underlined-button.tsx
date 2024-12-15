@@ -48,12 +48,15 @@ const StyledButton = styled.button<{ color: string }>`
 const StyledLink = StyledButton.withComponent(Link);
 
 export default function UnderlinedButton(props: { color: string, isLink?: boolean, to?: string, [key: string]: any }) {
-  const { isLink, to, ...restProps } = props;
+  const { className, isLink, to, ...restProps } = props;
 
   if (isLink) {
     if (to) {
       return (
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+        <div
+          className={className}
+          style={{ position: 'relative', display: 'inline-block' }}
+        >
           <StyledLink
             to={to}
             {...restProps}
@@ -66,7 +69,10 @@ export default function UnderlinedButton(props: { color: string, isLink?: boolea
   }
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div
+      className={className}
+      style={{ position: 'relative', display: 'inline-block' }}
+    >
       <StyledButton {...restProps} />
     </div>
   );

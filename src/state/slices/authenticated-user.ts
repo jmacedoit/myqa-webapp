@@ -22,7 +22,7 @@ export const authenticationSlice = createSlice({
       state.authenticatedUser = action.payload;
       state.isAuthenticated = true;
     },
-    logOutuser: state => {
+    logOutUser: state => {
       state.authenticatedUser = null;
       state.isAuthenticated = false;
     }
@@ -33,7 +33,7 @@ export const authenticationSlice = createSlice({
  * Export actions, selector and reducer.
  */
 
-export const { authenticateUser } = authenticationSlice.actions;
+export const { authenticateUser, logOutUser } = authenticationSlice.actions;
 
 export const selectAuthenticatedUser = (state: RootState) => state.authentication.authenticatedUser;
 

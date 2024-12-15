@@ -4,32 +4,34 @@
  */
 
 import { CircularProgress } from '@mui/material';
-import { Col, Container, Row } from 'react-grid-system';
+import { Col, Row, useScreenClass } from 'react-grid-system';
+import { StandardContentTitle } from 'src/ui/components/layout/standard-content-title';
+import { WisdomLevel } from 'src/types/answer';
 import { getKnowledgeBases } from 'src/services/backend/knowledge-bases';
+import { halfSpacing } from './knowledge-base-container';
+import { routes } from 'src/ui/routes';
 import { selectActiveOrganizationKnowledgeBases, setKnowledgeBasesAction } from 'src/state/slices/data';
 import { translationKeys } from 'src/translations';
 import { units } from 'src/ui/styles/dimensions';
 import { useAppDispatch, useAppSelector } from 'src/ui/hooks/redux';
 import { useAuthenticationHandler } from 'src/ui/hooks/authentication';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import KnowledgeBaseAdder from './knowledge-base-adder';
-import KnowledgeBaseComponent from './knowledge-base';
+import KnowledgeBaseDisplay from './knowledge-base-display';
 import QuestionBar from 'src/ui/components/question-bar';
 import React from 'react';
-import Type from 'src/ui/styles/type';
+import StandardPage from 'src/ui/components/layout/standard-page';
 import styled from 'styled-components';
 
 /*
  * Styles.
  */
 
-const StyledContainer = styled(Container)`
-`;
-
 const KnowledgeBasesContainer = styled.div`
-  margin-left: -${units(1)}px;
-  margin-right: -${units(1)}px;
+  margin-left: -${halfSpacing}px;
+  margin-right: -${halfSpacing}px;
 `;
 
 /*
@@ -41,14 +43,26 @@ function KnowledgeBasesListingScreen() {
   const { handleAuthenticatedRequest } = useAuthenticationHandler();
   const dispatch = useAppDispatch();
   const knowledgeBases = useAppSelector(selectActiveOrganizationKnowledgeBases);
+  const navigate = useNavigate();
   const { isLoading } = useQuery('knowledgeBases', async () => {
     const knowledgeBases = await handleAuthenticatedRequest(() => getKnowledgeBases());
 
     dispatch(setKnowledgeBasesAction(knowledgeBases));
   });
 
+  const screenClass = useScreenClass();
+  const gridForBreakpoints = {
+    xs: 1,
+    sm: 2,
+    md: 2,
+    lg: 3,
+    xl: 3,
+    xxl: 3
+  };
+
   const renderedKnowledgeBases = knowledgeBases.map(knowledgeBase => (
-    <KnowledgeBaseComponent
+    <KnowledgeBaseDisplay
+      inGridOf={gridForBreakpoints[screenClass]}
       key={knowledgeBase.id}
       knowledgeBase={knowledgeBase}
     />
@@ -56,24 +70,46 @@ function KnowledgeBasesListingScreen() {
 
   return (
     <>
-      <StyledContainer>
+      <StandardPage>
         <Row>
           <Col xs={12}>
-            <QuestionBar />
+            <QuestionBar
+              handleSubmit={(question: string, knowledgeBaseId: string, language: string | undefined, wisdomLevel: WisdomLevel) => {
+                navigate(routes.answers, {
+                  state: {
+                    question,
+                    knowledgeBaseId,
+                    language,
+                    wisdomLevel
+                  }
+                });
+              }}
+              titled
+              topAligned
+            />
 
-            <Type.H3>
+            <StandardContentTitle>
               {t(translationKeys.screens.knowledgeBases.title)}
-            </Type.H3>
+            </StandardContentTitle>
 
             <KnowledgeBasesContainer>
-              {isLoading ?
-                <CircularProgress /> :
-                [...renderedKnowledgeBases, <KnowledgeBaseAdder key={'_ADDER_'} />]
-              }
+              {isLoading ? (
+                <div style={{ padding: units(4), textAlign: 'center' }}>
+                  <CircularProgress />
+                </div>
+              ) : [
+                (
+                  <KnowledgeBaseAdder
+                    inGridOf={gridForBreakpoints[screenClass]}
+                    key={'_ADDER_'}
+                  />
+                ),
+                ...renderedKnowledgeBases
+              ]}
             </KnowledgeBasesContainer>
           </Col>
         </Row>
-      </StyledContainer>
+      </StandardPage>
     </>
   );
 }

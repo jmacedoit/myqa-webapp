@@ -40,18 +40,6 @@ export const H2 = styled.h2`
   margin-top: 0;
 `;
 
-export const H2Strong = styled.h2`
-  font-family: 'Moderat', sans-serif;
-  font-style: normal;
-  font-weight: 500;
-  font-size: ${60 / defaultRootFontSizePx}rem;
-  line-height: 0.967;
-  letter-spacing: -0.05em;;
-  color: ${prop('color', 'inherit')};
-  margin-bottom: ${units(3)}px;
-  margin-top: 0;
-`;
-
 export const H3 = styled.h3`
   font-family: 'Moderat', sans-serif;
   font-style: normal;
@@ -81,6 +69,16 @@ export const H5 = styled.h5`
   font-size: ${28 / defaultRootFontSizePx}rem;
   line-height: 0.967;
   letter-spacing: -0.05em;
+  margin-bottom: ${units(2)}px;
+  margin-top: 0;
+`;
+
+export const ParagraphSmall = styled.p`
+  font-family: 'Moderat', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: ${16 / defaultRootFontSizePx}rem;
+  line-height: 1.3333;
   margin-bottom: ${units(2)}px;
   margin-top: 0;
 `;
@@ -118,7 +116,7 @@ export const Small = styled.small`
 `;
 
 export const SmallStrong = styled(Small)`
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 export const XSmall = styled.small`
@@ -139,9 +137,10 @@ export default {
   H1,
   H1Strong,
   H2,
-  H2Strong,
   H3,
   H4,
+  H5,
+  ParagraphSmall,
   Paragraph,
   ParagraphLarge,
   Small,
